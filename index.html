@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body class="chill">
+  <div class="dashboard">
+    <header class="site-header">
+      <div class="header-content">
+        <div class="logo"><span class="logo-icon"></span>TrackNStudy</div>
+        <button class="hamburger-menu" aria-label="Toggle navigation" onclick="toggleMobileMenu()">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <nav class="nav-menu" id="navMenu">
+          <a href="#" onclick="closeMobileMenuOnClick()">HOME</a>
+          <a href="#" onclick="showAbout(); closeMobileMenuOnClick()">ABOUT</a>
+          <a href="#" onclick="showFeatures(); closeMobileMenuOnClick()">FEATURES</a>
+        </nav>
+        <div class="profile-header">
+          <div class="notification-bell" onclick="toggleNotificationDropdown()">
+            🔔
+            <span class="badge" id="notificationBadge"></span>
+          </div>
+          <div class="profile-section">
+          <input type="text" id="userName" placeholder="Enter your name">
+          <img src="assets/avatars/default.png" id="userAvatar" alt="Avatar" onclick="toggleProfilePanel()">
+        </div>
+      </div>
+      <div class="profile-dropdown" id="profileDropdown">
+        <div class="dropdown-item" onclick="toggleCustomizationPanel()">🎨 Customize</div>
+        <hr class="dropdown-divider">
+        <div class="dropdown-item" onclick="logout()">🚪 Log Out</div>
+      </div>
+      <div class="customization-panel" id="customizationPanel">
+        <h3>🎨 Customize</h3>
+        <div class="custom-option">
+          <label>🏠 Change Homepage Background Color:</label>
+          <input type="color" id="homepageBgColorPicker" onchange="setHomepageBackground(this.value)">
+        </div>
+        <hr class="option-divider">
+        <div class="custom-option">
+          <label>🖼️ Change Header Background Color:</label>
+          <input type="color" id="headerBgColorPicker" onchange="setHeaderBackground(this.value)">
+        </div>
+        <hr class="option-divider">
+        <div class="custom-option">
+          <label>🎭 Theme:</label>
+          <div class="theme-dropdown-container">
+            <button class="theme-button" onclick="toggleThemeDropdown()">Select Theme</button>
+            <div class="theme-dropdown" id="themeDropdown">
+              <div class="theme-option" onclick="setTheme('cyber')">Cyber</div>
+              <div class="theme-option" onclick="setTheme('chill-vibes')">Chill Vibes</div>
+              <div class="theme-option" onclick="setTheme('sakura')">Neutral</div>
+              <div class="theme-option" onclick="setTheme('Earth')">Sakura</div>
+              <div class="theme-option" onclick="setTheme('Mist')">Cool Mist</div>
+              <div class="theme-option" onclick="setTheme('Sand')">Soft Sand</div>
+            </div>
+          </div>
+        </div>
+        <hr class="option-divider">
+        <div class="custom-option">
+          <label>👤 Update Profile / Avatar:</label>
+          <input type="file" id="avatarUpload" accept="image/*" onchange="uploadAvatar(event)">
+        </div>
+        <button onclick="resetCustomizations()">🔄 Reset</button>
+      </div>
+      <div class="notification-dropdown" id="notificationDropdown">
+        <div class="notification-list" id="notificationList"></div>
+        <div class="notification-actions">
+          <button onclick="markAsRead()">✅ Mark as Read</button>
+          <button onclick="deleteAll()">🗑️ Delete All</button>
+          <button onclick="showHistory()">🔄 History</button>
+          <button onclick="renderNotifications()">Back</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="content">
+    <section class="background-images">
+      <div class="images-container">
+        <img src="angas.png" alt="Background 1">
+      </div>
+    </section>
+
+    
+    <div class="shortcut-container">
+      <button class="shortcut-btn" data-target="main-notes">📓 Main Notes</button>
+      <button class="shortcut-btn" data-target="todo-list">📋 To-Do List</button>
+      <button class="shortcut-btn" data-target="assignment-tracker">🗂️ Assignment Tracker</button>
+      <button class="shortcut-btn" data-target="study-timer">⏱️ Study Timer</button>
+      <button class="shortcut-btn" data-target="Calculator">🧮 Calculator</button>
+      <button class="shortcut-btn" data-target="StickyNotes">📌 Sticky Notes</button>
+      <button class="shortcut-btn" data-target="Calendar">📅 Calendar</button>
+    </div>
+
+
+    
+    <div class="feature-box box-pad-V" data-name="Reviewer"></div>
+    <div class="feature-box box-pad-V" data-name="Planner"></div>
+    <div class="feature-box box-pad-V" data-name="Timer"></div>
+    <div class="feature-box box-pad-V" data-name="Calculator"></div>
+    <div class="feature-box box-pad-V" data-name="StickyNotes"></div>
+    <div class="feature-box box-pad-V" data-name="Calendar"></div>
+
+    
+    <div class="module notes-module" id="main-notes">
+      <h2>Main Notes</h2>
+      <div class="toolbar">
+        <button id="penTool" title="Pen Tool">✏️</button>
+        <button id="highlighterTool" title="Highlighter">🖍️</button>
+        <input type="color" id="fontColorPicker" title="Font Color" value="#1e293b">
+        <button id="eraserTool" title="Eraser">🧽</button>
+      </div>
+      <div contenteditable="true" id="notesArea" class="notes-area" placeholder="Start typing your notes here..."></div>
+    </div>
+
+    <section class="tool-grid">
+      
+      <div class="module todo-module" id="todo-list">
+        <h2>📝 To-Do List</h2>
+        <input type="text" id="taskInput" placeholder="New task" maxlength="20">
+        <select id="taskPriority">
+          <option value="low">Low Priority</option>
+          <option value="medium" selected>Medium Priority</option>
+          <option value="high">High Priority</option>
+        </select>
+        <input type="date" id="taskDate" min="">
+        <button onclick="addTask()">Add</button>
+        <button onclick="resetTasks()">Reset</button>
+        <ul id="taskList" class="scrollable-list sortable-list"></ul>
+        <div class="quote">Stay focused, stay chill—your tasks, your pace.</div>
+      </div>
+
+      
+      <div class="module assignments-module" id="assignment-tracker">
+        <h2>📅 Assignment Tracker</h2>
+        <input type="text" id="assignmentInput" placeholder="Assignment name (e.g., Math - Chapter 5)" maxlength="20">
+        <input type="date" id="assignmentDate" min="">
+        <button onclick="addAssignment()">Add</button>
+        <button onclick="resetAssignments()">Reset</button>
+        <div class="progress-bar">
+          <div class="progress-fill" id="assignmentProgress"></div>
+          <span class="progress-text" id="assignmentProgressText">0/0 Completed</span>
+        </div>
+        <ul id="assignmentList" class="scrollable-list"></ul>
+        <div class="quote">Deadlines don't have to be scary. We make them manageable.</div>
+      </div>
+
+      
+      <div class="module timer-module" id="study-timer">
+        <h2>⏱️ Study Timer</h2>
+        <div class="timer-presets">
+          <button onclick="setPreset('pomodoro')">🍅 Pomodoro (25/5)</button>
+          <button onclick="setPreset('deep')">🧠 Deep Focus (50/10)</button>
+          <button onclick="setPreset('chill')">😌 Chill Mode (15/5)</button>
+        </div>
+        <div class="custom-timer">
+          <input type="number" id="customMinutes" placeholder="Custom minutes" min="1" max="180">
+          <button onclick="setCustomTimer()">Set Custom Timer</button>
+        </div>
+        <div class="timer-container">
+          <svg class="timer-ring" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="54" stroke="#e6e6e6" stroke-width="6" fill="none"/>
+            <circle cx="60" cy="60" r="54" stroke="#38bdf8" stroke-width="6" fill="none" stroke-dasharray="339.3" stroke-dashoffset="339.3" id="timerProgress"/>
+          </svg>
+          <div class="timer-display">
+            <p id="timerDisplay">00:00</p>
+            <p id="timerMode">Ready</p>
+          </div>
+        </div>
+        <div class="timer-controls">
+          <button onclick="startTimer()">Start</button>
+          <button onclick="pauseTimer()">Pause</button>
+          <button onclick="resetTimer()">Reset</button>
+        </div>
+        <div class="session-log">
+          <h4>Today's Sessions</h4>
+          <ul id="sessionList"></ul>
+        </div>
+        <div class="motivational-quote" id="motivationalQuote">Every second counts when you're building something great.</div>
+      </div>
+    </section>
+
+    <h2 class="why-choose-title" id="reviewer">Why Choose Us</h2>
+    <p class="why-choose-text">In a world overflowing with productivity tools, we offer something different—something personal. Our dashboard isn't just a workspace; it's a calm, intuitive environment designed to help you focus, plan, and grow. Whether you're managing tasks, tracking assignments, or timing your workflow, every feature is crafted to support your rhythm—not disrupt it.</p>
+
+    <div class="button-container">
+       <button class="toggle-button active" onclick="showSection('calculator')">Calculator</button>
+       <button class="toggle-button" onclick="showSection('notes')">Sticky Notes</button>
+       <button class="toggle-button" onclick="showSection('calendar')">Calendar</button>
+     </div>
+
+    <div id="calculator" class="section">
+      <h2>🧮 Scientific Calculator</h2>
+      <div class="calc-container" tabindex="0">
+        <div class="calc-display">
+          <div id="calcExpression" class="calc-expression"></div>
+          <div id="calcResult" class="calc-result"></div>
+          
+        </div>
+
+        
+
+<div class="calc-controls">
+          <button onclick="toggleMode()" id="modeBtn">DEG</button>
+          <button onclick="clearAll()">AC</button>
+          <button onclick="clearEntry()">C</button>
+          <button onclick="backspace()">⌫</button>
+        </div>
+        <div class="keypad">
+          
+          <button onclick="appendCalc('sin(')">sin</button>
+          <button onclick="appendCalc('cos(')">cos</button>
+          <button onclick="appendCalc('tan(')">tan</button>
+          <button onclick="appendCalc('log(')">log</button>
+          
+          <button onclick="appendCalc('asin(')">asin</button>
+          <button onclick="appendCalc('acos(')">acos</button>
+          <button onclick="appendCalc('atan(')">atan</button>
+          <button onclick="appendCalc('ln(')">ln</button>
+         
+          
+          
+          
+          <button onclick="appendCalc('sqrt(')">√</button>
+          <button onclick="appendCalc('cbrt(')">∛</button>
+          <button onclick="appendCalc('Math.PI')">π</button>
+          <button onclick="appendCalc('Math.E')">e</button>
+          
+          <button onclick="appendCalc('(')">(</button>
+          <button onclick="appendCalc(')')">)</button>
+          
+
+          <button onclick="appendCalc('1')">1</button>
+          <button onclick="appendCalc('2')">2</button>
+          <button onclick="appendCalc('3')">3</button>
+          
+          
+          <button onclick="appendCalc('4')">4</button>
+          <button onclick="appendCalc('5')">5</button>
+          <button onclick="appendCalc('6')">6</button>
+          
+          
+          <button onclick="appendCalc('7')">7</button>
+          <button onclick="appendCalc('8')">8</button>
+          <button onclick="appendCalc('9')">9</button>
+          <button onclick="appendCalc('0')">0</button>
+          <button onclick="appendCalc('^')">^</button>
+          <button onclick="backspace()">⌫</button>
+          <button onclick="appendCalc('+')">+</button>
+          
+          
+          <button onclick="appendCalc('/')">÷</button>
+          <button onclick="appendCalc('*')">×</button>
+          <button onclick="appendCalc('-')">-</button>
+          <button onclick="appendCalc('.')">.</button>
+          <button onclick="calculate()" class="equals-btn">=</button>
+          
+        </div>
+      </div>
+    </div>
+
+    <div id="notes" class="section">
+      <h2>📌 Sticky Notes</h2>
+      <div class="note-input-container">
+        <textarea id="noteInput" placeholder="Write your note here..." maxlength="200"></textarea>
+        <div class="char-counter"><span id="charCount">0</span>/200</div>
+        <button onclick="addNote()" class="note-add-btn">Add Note</button>
+        <button onclick="resetNotes()" class="note-reset-btn">Reset</button>
+      </div>
+      <div class="notes-container">
+        <ul id="noteList"></ul>
+      </div>
+    </div>
+
+    <div id="calendar" class="section">
+       <h2>📅 Calendar</h2>
+       <div class="calendar-widget">
+         <div class="calendar-header">
+           <button onclick="prevMonth()" class="calendar-nav">‹</button>
+           <h3 id="calendarMonthYear">Month Year</h3>
+           <button onclick="nextMonth()" class="calendar-nav">›</button>
+         </div>
+         <div class="calendar-grid">
+           <div class="calendar-day-header">Sun</div>
+           <div class="calendar-day-header">Mon</div>
+           <div class="calendar-day-header">Tue</div>
+           <div class="calendar-day-header">Wed</div>
+           <div class="calendar-day-header">Thu</div>
+           <div class="calendar-day-header">Fri</div>
+           <div class="calendar-day-header">Sat</div>
+         </div>
+         <div class="calendar-days" id="calendarDays"></div>
+         <div class="calendar-selected-date">
+           Selected: <span id="selectedDateDisplay">None</span>
+         </div>
+         <div class="calendar-tooltip" id="calendarTooltip"></div>
+       </div>
+     </div>
+
+
+    </div>
+     <div class="sidebar-dock" id="sidebarDock">
+       <button class="dock-toggle" onclick="toggleSidebar()" title="Toggle Sidebar">☰</button>
+       <div class="dock-buttons">
+         <button onclick="window.location.href='testnpl.html'" class="dock-btn" title="Reviewer Converter">
+           📝 <span>Reviewer</span>
+         </button>
+         <button onclick="window.location.href='finalboss/converter.html'" class="dock-btn" title="Converter">
+           🔄 <span>Converter</span>
+         </button>
+         <button onclick="window.location.href='ai shish/periodictable.html'" class="dock-btn" title="Periodic Table">
+           📊 <span>Periodic Table</span>
+         </button>
+         <button onclick="goToGames()" class="dock-btn" title="Games">
+  🎮 <span>Games</span>
+
+         </button>
+       </div>
+     </div>
+
+   </div>
+
+   <!-- Modals -->
+   <div id="about-modal" class="modal-overlay">
+     <div class="modal-content">
+       <button class="modal-close" onclick="closeModal('about-modal')">&times;</button>
+       <h2>ABOUT</h2>
+       <p>TrackNStudy is a productivity platform designed to help students organize, manage, and elevate their study experience. Whether you're preparing for exams, tracking assignments, or simply trying to stay focused, this website brings together essential tools in one clean, accessible space.</p>
+       <p>Built with simplicity and functionality in mind, TrackNStudy empowers users to take control of their academic journey. Each feature is crafted to reduce stress, boost efficiency, and make studying feel less overwhelming and more rewarding.</p>
+       <p>From note-taking to time management, this platform is your all-in-one study companion — perfect for learners who value structure, clarity, and a touch of creativity.</p>
+       <p>This website was proudly created by a Grade 12 student from STI and completed in 2025.</p>
+       <hr>
+
+<h2 class="contact-title">Contact Us</h2>
+
+<p>If you have questions, feedback, or suggestions, feel free to reach out:</p>
+
+<p>
+  📧 Email: 
+  <a href="mailto:your@email.com">
+    tracknstudy@gmail.com
+  </a>
+</p>
+
+<p>📱 Phone: 09561452358</p>
+<p>📍 Location: Philippines</p>
+     </div>
+   </div>
+
+   <div id="features-modal" class="modal-overlay">
+     <div class="modal-content">
+       <button class="modal-close" onclick="closeModal('features-modal')">&times;</button>
+       <h2>FEATURES</h2>
+       <p>Here's a breakdown of all the tools available on TrackNStudy — each one designed to support a specific part of your study workflow:</p>
+       <ul>
+         <li><strong>Main Notes</strong> – A clean space to write, organize, and revisit your key study notes.</li>
+         <li><strong>To-Do List</strong> – Stay on top of your tasks with a simple checklist system.</li>
+         <li><strong>Assignment Tracker</strong> – Log your upcoming assignments with due dates and descriptions.</li>
+         <li><strong>Study Timer</strong> – Use focused time blocks (like Pomodoro) to stay productive.</li>
+         <li><strong>Calculator</strong> – A built-in scientific calculator for quick math operations and advanced functions.</li>
+         <li><strong>Sticky Notes</strong> – Jot down reminders, ideas, or motivational quotes.</li>
+         <li><strong>Calendar</strong> – View your schedule at a glance.</li>
+         <li><strong>Reviewer</strong> – Upload or create review materials for quizzes and exams.</li>
+         <li><strong>Converter</strong> – Convert units, currencies, or values with ease.</li>
+         <li><strong>Games</strong> – Take short breaks with educational or relaxing games.</li>
+         <li><strong>Periodic Table</strong> – Explore elements interactively.</li>
+       </ul>
+     </div>
+   </div>
+
+   <!-- CUSTOM CONFIRM MODAL -->
+<div id="confirmModal" class="confirm-modal">
+  <div class="confirm-box">
+    <p id="confirmMessage">Are you sure?</p>
+    <div class="confirm-buttons">
+      <button id="confirmOk">OK</button>
+      <button id="confirmCancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+   <script src="script.js"></script>
+   
+</body>
+</html>

@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Interactive Periodic Table</title>
+  <style>
+    :root {
+      --tile-size: 50px;
+      --tile-gap: 5px;
+      --table-width: calc(18 * (var(--tile-size) + var(--tile-gap)) + var(--tile-gap));
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+      color: #333;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      touch-action: manipulation;
+    }
+    #container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    header { text-align: center; margin-bottom: 20px; }
+    h1 { font-size: 2.5em; margin: 0.5em 0; }
+    #filters {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    #filters > * {
+      padding: 10px 12px;
+      border-radius: 5px;
+      border: none;
+      background: rgba(255,255,255,0.9);
+      color: #333;
+      font-size: 14px;
+      min-height: 44px;
+      touch-action: manipulation;
+    }
+    #searchBar { min-width: 180px; flex: 1; max-width: 250px; }
+    #table-wrapper {
+      overflow-x: auto;
+      overflow-y: visible;
+      -webkit-overflow-scrolling: touch;
+      margin-bottom: 20px;
+      border-radius: 10px;
+      padding-bottom: 10px;
+      will-change: scroll-position;
+    }
+    #table {
+      display: grid;
+      grid-template-columns: repeat(18, var(--tile-size));
+      grid-template-rows: repeat(10, var(--tile-size));
+      gap: var(--tile-gap);
+      width: max-content;
+      margin: 0 auto;
+      padding: var(--tile-gap);
+      background: rgba(255,255,255,0.2);
+    }
+    .tile {
+      width: var(--tile-size);
+      height: var(--tile-size);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.9);
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      font-size: 11px;
+      text-align: center;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .tile-symbol { font-weight: bold; font-size: 14px; line-height: 1; }
+    .tile-number { font-size: 9px; opacity: 0.8; line-height: 1; margin-top: 2px; }
+    .tile:focus { outline: 2px solid #2196F3; outline-offset: 2px; }
+    .tile.alkali { background: rgba(255,182,193,0.9); }
+    .tile.alkaline { background: rgba(173,216,230,0.9); }
+    .tile.transition { background: rgba(255,218,185,0.9); }
+    .tile.post-transition { background: rgba(255,228,196,0.9); }
+    .tile.metalloid { background: rgba(221,160,221,0.9); }
+    .tile.nonmetal { background: rgba(152,251,152,0.9); }
+    .tile.halogen { background: rgba(255,160,122,0.9); }
+    .tile.noble { background: rgba(240,230,140,0.9); }
+    .tile.lanthanide { background: rgba(176,196,222,0.9); }
+    .tile.actinide { background: rgba(255,222,173,0.9); }
+    .tile.hidden { display: none; }
+    .tile.fade-out { opacity: 0.2; }
+    .tile.highlight {
+      box-shadow: 0 0 0 3px #FFD700, 0 4px 12px rgba(255,215,0,0.5);
+      transform: scale(1.08);
+      z-index: 10;
+    }
+    #guide {
+      background: rgba(255,255,255,0.9);
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    #guide h2 { margin-top: 0; color: #333; font-size: 1.2em; }
+    #guide ul { padding-left: 20px; margin: 10px 0; }
+    #guide li { margin-bottom: 5px; font-size: 14px; }
+    #infoPanel {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 300px;
+      background: rgba(255,255,255,0.98);
+      color: #333;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+      display: none;
+      z-index: 1000;
+      max-height: 80vh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    #infoPanel.show { display: block; }
+    #infoPanel h3 { margin-top: 0; border-bottom: 1px solid #ddd; padding-bottom: 10px; }
+    #infoPanel p { margin: 8px 0; font-size: 14px; }
+    #background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -1;
+      overflow: hidden;
+    }
+    .particle {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      background: rgba(255,255,255,0.5);
+      border-radius: 50%;
+      animation: float 15s infinite linear;
+    }
+    @keyframes float {
+      0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+    }
+    .glassy-pastel {
+      background: linear-gradient(135deg, #fce4ec 0%, #f8bbd9 25%, #e1bee7 50%, #d1c4e9 75%, #c5cae9 100%);
+      color: #4a148c;
+    }
+    .glassy-pastel #guide, .glassy-pastel #infoPanel { background: rgba(255,255,255,0.85); }
+    @media (max-width: 768px) {
+      :root {
+        --tile-size: 32px;
+        --tile-gap: 2px;
+      }
+      #container { padding: 10px 5px; }
+      h1 { font-size: 1.3em; }
+      #filters { gap: 5px; }
+      #searchBar, #filters select { font-size: 12px; padding: 8px; min-height: 40px; }
+      .tile { font-size: 8px; border-radius: 3px; }
+      .tile-symbol { font-size: 10px; }
+      .tile-number { font-size: 7px; }
+      #infoPanel {
+        width: 95%;
+        right: 2.5%;
+        top: auto;
+        bottom: 10px;
+        max-height: 45vh;
+        font-size: 14px;
+        padding: 12px;
+      }
+      #guide { font-size: 12px; padding: 10px; }
+      #guide h2 { font-size: 1em; }
+      .particle { display: none; }
+    }
+    @media (hover: none) and (pointer: coarse) {
+      .tile { min-height: 40px; min-width: 40px; }
+    }
+    .back-btn {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 12px 20px;
+      background-color: #6a0dad;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 6px;
+      font-family: 'Segoe UI', sans-serif;
+      touch-action: manipulation;
+    }
+    .back-btn:active { transform: scale(0.97); }
+  </style>
+</head>
+<body>
+  <div id="background"></div>
+  <div id="container">
+    <header>
+      <h1>Interactive Periodic Table</h1>
+    </header>
+    <div id="guide">
+      <h2>How to Explore the Periodic Table</h2>
+      <p>Welcome to the Interactive Periodic Table—a dynamic tool designed to make chemistry intuitive, engaging, and beautiful.</p>
+      <ul>
+        <li>🔍 Use the search bar to instantly find any element by name or symbol.</li>
+        <li>🎨 Filter by category or phase to explore patterns and properties.</li>
+        <li>🧠 Click any element to reveal its details in the info panel.</li>
+        <li>🎛️ Switch between visual themes to suit your mood or learning style.</li>
+        <li>⌨️ Navigate with your keyboard for a faster experience.</li>
+      </ul>
+      <p>Whether you're a student, a teacher, or just curious about the building blocks of matter, this table is built to spark discovery. Dive in, experiment, and let your curiosity lead the way.</p>
+    </div>
+    <div id="filters">
+      <input type="text" id="searchBar" placeholder="Search by name or symbol..." aria-label="Search elements by name or symbol">
+      <select id="categoryFilter" aria-label="Filter by category">
+        <option value="">All Categories</option>
+        <option value="alkali">Alkali Metals</option>
+        <option value="alkaline">Alkaline Earth Metals</option>
+        <option value="transition">Transition Metals</option>
+        <option value="post-transition">Post-Transition Metals</option>
+        <option value="metalloid">Metalloids</option>
+        <option value="nonmetal">Nonmetals</option>
+        <option value="halogen">Halogens</option>
+        <option value="noble">Noble Gases</option>
+        <option value="lanthanide">Lanthanides</option>
+        <option value="actinide">Actinides</option>
+      </select>
+      <select id="phaseFilter" aria-label="Filter by phase" title="Phase at STP (Standard Temperature and Pressure)">
+        <option value="">All Phases</option>
+        <option value="solid">Solid</option>
+        <option value="liquid">Liquid</option>
+        <option value="gas">Gas</option>
+      </select>
+      <select id="atomicRangeFilter" aria-label="Filter by atomic number range">
+        <option value="">All Atomic Numbers</option>
+        <option value="1-20">1-20</option>
+        <option value="21-40">21-40</option>
+        <option value="41-60">41-60</option>
+        <option value="61-80">61-80</option>
+        <option value="81-118">81-118</option>
+      </select>
+      <button id="themeToggle" aria-label="Toggle theme">🌙 Theme</button>
+    </div>
+    <div id="table-wrapper">
+      <div id="table"></div>
+    </div>
+    <div id="infoPanel" class="sticky-panel">
+      <h2>Element Details</h2>
+      <div id="infoContent"></div>
+    </div>
+  </div>
+  <script>
+    const elements = [
+      { symbol: 'H', name: 'Hydrogen', atomicNumber: 1, atomicMass: 1.008, electronConfig: '1s1', yearDiscovered: 1766, category: 'nonmetal', phase: 'gas', group: 1, period: 1, description: 'Hydrogen is the lightest element, a colorless, odorless gas. It is highly flammable and used in fuel cells and chemical production.' },
+      { symbol: 'He', name: 'Helium', atomicNumber: 2, atomicMass: 4.0026, electronConfig: '1s2', yearDiscovered: 1895, category: 'noble', phase: 'gas', group: 18, period: 1, description: 'Helium is a noble gas, inert, used in balloons and cryogenics.' },
+      { symbol: 'Li', name: 'Lithium', atomicNumber: 3, atomicMass: 6.94, electronConfig: '1s2 2s1', yearDiscovered: 1817, category: 'alkali', phase: 'solid', group: 1, period: 2, description: 'Lithium is a soft metal, used in batteries and medicine.' },
+      { symbol: 'Be', name: 'Beryllium', atomicNumber: 4, atomicMass: 9.0122, electronConfig: '1s2 2s2', yearDiscovered: 1798, category: 'alkaline', phase: 'solid', group: 2, period: 2, description: 'Beryllium is lightweight, used in aerospace.' },
+      { symbol: 'B', name: 'Boron', atomicNumber: 5, atomicMass: 10.81, electronConfig: '1s2 2s2 2p1', yearDiscovered: 1808, category: 'metalloid', phase: 'solid', group: 13, period: 2, description: 'Boron is hard, used in ceramics.' },
+      { symbol: 'C', name: 'Carbon', atomicNumber: 6, atomicMass: 12.011, electronConfig: '1s2 2s2 2p2', yearDiscovered: 'Ancient', category: 'nonmetal', phase: 'solid', group: 14, period: 2, description: 'Carbon forms diamonds and graphite, basis of life.' },
+      { symbol: 'N', name: 'Nitrogen', atomicNumber: 7, atomicMass: 14.007, electronConfig: '1s2 2s2 2p3', yearDiscovered: 1772, category: 'nonmetal', phase: 'gas', group: 15, period: 2, description: 'Nitrogen makes up air, used in fertilizers.' },
+      { symbol: 'O', name: 'Oxygen', atomicNumber: 8, atomicMass: 15.999, electronConfig: '1s2 2s2 2p4', yearDiscovered: 1774, category: 'nonmetal', phase: 'gas', group: 16, period: 2, description: 'Oxygen is essential for respiration.' },
+      { symbol: 'F', name: 'Fluorine', atomicNumber: 9, atomicMass: 18.998, electronConfig: '1s2 2s2 2p5', yearDiscovered: 1886, category: 'halogen', phase: 'gas', group: 17, period: 2, description: 'Fluorine is highly reactive, used in toothpaste.' },
+      { symbol: 'Ne', name: 'Neon', atomicNumber: 10, atomicMass: 20.180, electronConfig: '1s2 2s2 2p6', yearDiscovered: 1898, category: 'noble', phase: 'gas', group: 18, period: 2, description: 'Neon is used in lights.' },
+      { symbol: 'Na', name: 'Sodium', atomicNumber: 11, atomicMass: 22.990, electronConfig: '1s2 2s2 2p6 3s1', yearDiscovered: 1807, category: 'alkali', phase: 'solid', group: 1, period: 3, description: 'Sodium is reactive, used in soap.' },
+      { symbol: 'Mg', name: 'Magnesium', atomicNumber: 12, atomicMass: 24.305, electronConfig: '1s2 2s2 2p6 3s2', yearDiscovered: 1755, category: 'alkaline', phase: 'solid', group: 2, period: 3, description: 'Magnesium is light, used in alloys.' },
+      { symbol: 'Al', name: 'Aluminum', atomicNumber: 13, atomicMass: 26.982, electronConfig: '1s2 2s2 2p6 3s2 3p1', yearDiscovered: 1825, category: 'post-transition', phase: 'solid', group: 13, period: 3, description: 'Aluminum is lightweight, used in cans.' },
+      { symbol: 'Si', name: 'Silicon', atomicNumber: 14, atomicMass: 28.085, electronConfig: '1s2 2s2 2p6 3s2 3p2', yearDiscovered: 1824, category: 'metalloid', phase: 'solid', group: 14, period: 3, description: 'Silicon is in computers.' },
+      { symbol: 'P', name: 'Phosphorus', atomicNumber: 15, atomicMass: 30.974, electronConfig: '1s2 2s2 2p6 3s2 3p3', yearDiscovered: 1669, category: 'nonmetal', phase: 'solid', group: 15, period: 3, description: 'Phosphorus is in DNA.' },
+      { symbol: 'S', name: 'Sulfur', atomicNumber: 16, atomicMass: 32.06, electronConfig: '1s2 2s2 2p6 3s2 3p4', yearDiscovered: 'Ancient', category: 'nonmetal', phase: 'solid', group: 16, period: 3, description: 'Sulfur is in matches.' },
+      { symbol: 'Cl', name: 'Chlorine', atomicNumber: 17, atomicMass: 35.45, electronConfig: '1s2 2s2 2p6 3s2 3p5', yearDiscovered: 1774, category: 'halogen', phase: 'gas', group: 17, period: 3, description: 'Chlorine disinfects water.' },
+      { symbol: 'Ar', name: 'Argon', atomicNumber: 18, atomicMass: 39.948, electronConfig: '1s2 2s2 2p6 3s2 3p6', yearDiscovered: 1894, category: 'noble', phase: 'gas', group: 18, period: 3, description: 'Argon is inert, used in lights.' },
+      { symbol: 'K', name: 'Potassium', atomicNumber: 19, atomicMass: 39.098, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s1', yearDiscovered: 1807, category: 'alkali', phase: 'solid', group: 1, period: 4, description: 'Potassium is in bananas.' },
+      { symbol: 'Ca', name: 'Calcium', atomicNumber: 20, atomicMass: 40.078, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2', yearDiscovered: 1808, category: 'alkaline', phase: 'solid', group: 2, period: 4, description: 'Calcium is in bones.' },
+      { symbol: 'Sc', name: 'Scandium', atomicNumber: 21, atomicMass: 44.956, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d1', yearDiscovered: 1879, category: 'transition', phase: 'solid', group: 3, period: 4, description: 'Scandium is rare.' },
+      { symbol: 'Ti', name: 'Titanium', atomicNumber: 22, atomicMass: 47.867, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d2', yearDiscovered: 1791, category: 'transition', phase: 'solid', group: 4, period: 4, description: 'Titanium is strong, used in aircraft.' },
+      { symbol: 'V', name: 'Vanadium', atomicNumber: 23, atomicMass: 50.942, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d3', yearDiscovered: 1801, category: 'transition', phase: 'solid', group: 5, period: 4, description: 'Vanadium strengthens steel.' },
+      { symbol: 'Cr', name: 'Chromium', atomicNumber: 24, atomicMass: 51.996, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s1 3d5', yearDiscovered: 1797, category: 'transition', phase: 'solid', group: 6, period: 4, description: 'Chromium is in stainless steel.' },
+      { symbol: 'Mn', name: 'Manganese', atomicNumber: 25, atomicMass: 54.938, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d5', yearDiscovered: 1774, category: 'transition', phase: 'solid', group: 7, period: 4, description: 'Manganese is in batteries.' },
+      { symbol: 'Fe', name: 'Iron', atomicNumber: 26, atomicMass: 55.845, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d6', yearDiscovered: 'Ancient', category: 'transition', phase: 'solid', group: 8, period: 4, description: 'Iron is magnetic.' },
+      { symbol: 'Co', name: 'Cobalt', atomicNumber: 27, atomicMass: 58.933, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d7', yearDiscovered: 1735, category: 'transition', phase: 'solid', group: 9, period: 4, description: 'Cobalt is in magnets.' },
+      { symbol: 'Ni', name: 'Nickel', atomicNumber: 28, atomicMass: 58.693, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d8', yearDiscovered: 1751, category: 'transition', phase: 'solid', group: 10, period: 4, description: 'Nickel is in coins.' },
+      { symbol: 'Cu', name: 'Copper', atomicNumber: 29, atomicMass: 63.546, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s1 3d10', yearDiscovered: 'Ancient', category: 'transition', phase: 'solid', group: 11, period: 4, description: 'Copper conducts electricity.' },
+      { symbol: 'Zn', name: 'Zinc', atomicNumber: 30, atomicMass: 65.38, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10', yearDiscovered: 'Ancient', category: 'transition', phase: 'solid', group: 12, period: 4, description: 'Zinc prevents rust.' },
+      { symbol: 'Ga', name: 'Gallium', atomicNumber: 31, atomicMass: 69.723, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p1', yearDiscovered: 1875, category: 'post-transition', phase: 'solid', group: 13, period: 4, description: 'Gallium melts in hand.' },
+      { symbol: 'Ge', name: 'Germanium', atomicNumber: 32, atomicMass: 72.63, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p2', yearDiscovered: 1886, category: 'metalloid', phase: 'solid', group: 14, period: 4, description: 'Germanium is in semiconductors.' },
+      { symbol: 'As', name: 'Arsenic', atomicNumber: 33, atomicMass: 74.922, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p3', yearDiscovered: 'Ancient', category: 'metalloid', phase: 'solid', group: 15, period: 4, description: 'Arsenic is toxic.' },
+      { symbol: 'Se', name: 'Selenium', atomicNumber: 34, atomicMass: 78.971, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p4', yearDiscovered: 1817, category: 'nonmetal', phase: 'solid', group: 16, period: 4, description: 'Selenium is in photocells.' },
+      { symbol: 'Br', name: 'Bromine', atomicNumber: 35, atomicMass: 79.904, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p5', yearDiscovered: 1826, category: 'halogen', phase: 'liquid', group: 17, period: 4, description: 'Bromine is a liquid.' },
+      { symbol: 'Kr', name: 'Krypton', atomicNumber: 36, atomicMass: 83.798, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6', yearDiscovered: 1898, category: 'noble', phase: 'gas', group: 18, period: 4, description: 'Krypton is in lights.' },
+      { symbol: 'Rb', name: 'Rubidium', atomicNumber: 37, atomicMass: 85.468, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s1', yearDiscovered: 1861, category: 'alkali', phase: 'solid', group: 1, period: 5, description: 'Rubidium is reactive.' },
+      { symbol: 'Sr', name: 'Strontium', atomicNumber: 38, atomicMass: 87.62, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2', yearDiscovered: 1790, category: 'alkaline', phase: 'solid', group: 2, period: 5, description: 'Strontium is in fireworks.' },
+      { symbol: 'Y', name: 'Yttrium', atomicNumber: 39, atomicMass: 88.906, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d1', yearDiscovered: 1794, category: 'transition', phase: 'solid', group: 3, period: 5, description: 'Yttrium is in LEDs.' },
+      { symbol: 'Zr', name: 'Zirconium', atomicNumber: 40, atomicMass: 91.224, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d2', yearDiscovered: 1789, category: 'transition', phase: 'solid', group: 4, period: 5, description: 'Zirconium is in ceramics.' },
+      { symbol: 'Nb', name: 'Niobium', atomicNumber: 41, atomicMass: 92.906, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s1 4d4', yearDiscovered: 1801, category: 'transition', phase: 'solid', group: 5, period: 5, description: 'Niobium is superconducting.' },
+      { symbol: 'Mo', name: 'Molybdenum', atomicNumber: 42, atomicMass: 95.95, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s1 4d5', yearDiscovered: 1778, category: 'transition', phase: 'solid', group: 6, period: 5, description: 'Molybdenum strengthens steel.' },
+      { symbol: 'Tc', name: 'Technetium', atomicNumber: 43, atomicMass: 98, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d5', yearDiscovered: 1937, category: 'transition', phase: 'solid', group: 7, period: 5, description: 'Technetium is radioactive.' },
+      { symbol: 'Ru', name: 'Ruthenium', atomicNumber: 44, atomicMass: 101.07, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s1 4d7', yearDiscovered: 1844, category: 'transition', phase: 'solid', group: 8, period: 5, description: 'Ruthenium is rare.' },
+      { symbol: 'Rh', name: 'Rhodium', atomicNumber: 45, atomicMass: 102.91, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s1 4d8', yearDiscovered: 1803, category: 'transition', phase: 'solid', group: 9, period: 5, description: 'Rhodium is in catalytic converters.' },
+      { symbol: 'Pd', name: 'Palladium', atomicNumber: 46, atomicMass: 106.42, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 4d10', yearDiscovered: 1803, category: 'transition', phase: 'solid', group: 10, period: 5, description: 'Palladium is in jewelry.' },
+      { symbol: 'Ag', name: 'Silver', atomicNumber: 47, atomicMass: 107.87, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s1 4d10', yearDiscovered: 'Ancient', category: 'transition', phase: 'solid', group: 11, period: 5, description: 'Silver conducts electricity.' },
+      { symbol: 'Cd', name: 'Cadmium', atomicNumber: 48, atomicMass: 112.41, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10', yearDiscovered: 1817, category: 'transition', phase: 'solid', group: 12, period: 5, description: 'Cadmium is toxic.' },
+      { symbol: 'In', name: 'Indium', atomicNumber: 49, atomicMass: 114.82, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p1', yearDiscovered: 1863, category: 'post-transition', phase: 'solid', group: 13, period: 5, description: 'Indium is in touchscreens.' },
+      { symbol: 'Sn', name: 'Tin', atomicNumber: 50, atomicMass: 118.71, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p2', yearDiscovered: 'Ancient', category: 'post-transition', phase: 'solid', group: 14, period: 5, description: 'Tin is in cans.' },
+      { symbol: 'Sb', name: 'Antimony', atomicNumber: 51, atomicMass: 121.76, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p3', yearDiscovered: 'Ancient', category: 'metalloid', phase: 'solid', group: 15, period: 5, description: 'Antimony is in flame retardants.' },
+      { symbol: 'Te', name: 'Tellurium', atomicNumber: 52, atomicMass: 127.6, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p4', yearDiscovered: 1782, category: 'metalloid', phase: 'solid', group: 16, period: 5, description: 'Tellurium is rare.' },
+      { symbol: 'I', name: 'Iodine', atomicNumber: 53, atomicMass: 126.9, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p5', yearDiscovered: 1811, category: 'halogen', phase: 'solid', group: 17, period: 5, description: 'Iodine is in disinfectants.' },
+      { symbol: 'Xe', name: 'Xenon', atomicNumber: 54, atomicMass: 131.29, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6', yearDiscovered: 1898, category: 'noble', phase: 'gas', group: 18, period: 5, description: 'Xenon is in lights.' },
+      { symbol: 'Cs', name: 'Cesium', atomicNumber: 55, atomicMass: 132.91, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s1', yearDiscovered: 1860, category: 'alkali', phase: 'solid', group: 1, period: 6, description: 'Cesium is highly reactive.' },
+      { symbol: 'Ba', name: 'Barium', atomicNumber: 56, atomicMass: 137.33, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2', yearDiscovered: 1808, category: 'alkaline', phase: 'solid', group: 2, period: 6, description: 'Barium is in X-rays.' },
+      { symbol: 'La', name: 'Lanthanum', atomicNumber: 57, atomicMass: 138.91, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 5d1', yearDiscovered: 1839, category: 'lanthanide', phase: 'solid', group: 3, period: 8, description: 'Lanthanum is in optics.' },
+      { symbol: 'Ce', name: 'Cerium', atomicNumber: 58, atomicMass: 140.12, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f1 5d1', yearDiscovered: 1803, category: 'lanthanide', phase: 'solid', group: 4, period: 8, description: 'Cerium is in lighters.' },
+      { symbol: 'Pr', name: 'Praseodymium', atomicNumber: 59, atomicMass: 140.91, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f3', yearDiscovered: 1885, category: 'lanthanide', phase: 'solid', group: 5, period: 8, description: 'Praseodymium is in magnets.' },
+      { symbol: 'Nd', name: 'Neodymium', atomicNumber: 60, atomicMass: 144.24, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f4', yearDiscovered: 1885, category: 'lanthanide', phase: 'solid', group: 6, period: 8, description: 'Neodymium is in lasers.' },
+      { symbol: 'Pm', name: 'Promethium', atomicNumber: 61, atomicMass: 145, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f5', yearDiscovered: 1945, category: 'lanthanide', phase: 'solid', group: 7, period: 8, description: 'Promethium is radioactive.' },
+      { symbol: 'Sm', name: 'Samarium', atomicNumber: 62, atomicMass: 150.36, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f6', yearDiscovered: 1879, category: 'lanthanide', phase: 'solid', group: 8, period: 8, description: 'Samarium is in magnets.' },
+      { symbol: 'Eu', name: 'Europium', atomicNumber: 63, atomicMass: 151.96, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f7', yearDiscovered: 1901, category: 'lanthanide', phase: 'solid', group: 9, period: 8, description: 'Europium is in TVs.' },
+      { symbol: 'Gd', name: 'Gadolinium', atomicNumber: 64, atomicMass: 157.25, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f7 5d1', yearDiscovered: 1880, category: 'lanthanide', phase: 'solid', group: 10, period: 8, description: 'Gadolinium is in MRI.' },
+      { symbol: 'Tb', name: 'Terbium', atomicNumber: 65, atomicMass: 158.93, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f9', yearDiscovered: 1843, category: 'lanthanide', phase: 'solid', group: 11, period: 8, description: 'Terbium is in LEDs.' },
+      { symbol: 'Dy', name: 'Dysprosium', atomicNumber: 66, atomicMass: 162.5, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f10', yearDiscovered: 1886, category: 'lanthanide', phase: 'solid', group: 12, period: 8, description: 'Dysprosium is in magnets.' },
+      { symbol: 'Ho', name: 'Holmium', atomicNumber: 67, atomicMass: 164.93, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f11', yearDiscovered: 1878, category: 'lanthanide', phase: 'solid', group: 13, period: 8, description: 'Holmium is rare.' },
+      { symbol: 'Er', name: 'Erbium', atomicNumber: 68, atomicMass: 167.26, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f12', yearDiscovered: 1842, category: 'lanthanide', phase: 'solid', group: 14, period: 8, description: 'Erbium is in lasers.' },
+      { symbol: 'Tm', name: 'Thulium', atomicNumber: 69, atomicMass: 168.93, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f13', yearDiscovered: 1879, category: 'lanthanide', phase: 'solid', group: 15, period: 8, description: 'Thulium is rare.' },
+      { symbol: 'Yb', name: 'Ytterbium', atomicNumber: 70, atomicMass: 173.05, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14', yearDiscovered: 1878, category: 'lanthanide', phase: 'solid', group: 16, period: 8, description: 'Ytterbium is in lasers.' },
+      { symbol: 'Lu', name: 'Lutetium', atomicNumber: 71, atomicMass: 174.97, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d1', yearDiscovered: 1907, category: 'lanthanide', phase: 'solid', group: 17, period: 8, description: 'Lutetium is rare.' },
+      { symbol: 'Hf', name: 'Hafnium', atomicNumber: 72, atomicMass: 178.49, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d2', yearDiscovered: 1923, category: 'transition', phase: 'solid', group: 4, period: 6, description: 'Hafnium is in nuclear reactors.' },
+      { symbol: 'Ta', name: 'Tantalum', atomicNumber: 73, atomicMass: 180.95, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d3', yearDiscovered: 1802, category: 'transition', phase: 'solid', group: 5, period: 6, description: 'Tantalum is in capacitors.' },
+      { symbol: 'W', name: 'Tungsten', atomicNumber: 74, atomicMass: 183.84, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d4', yearDiscovered: 1783, category: 'transition', phase: 'solid', group: 6, period: 6, description: 'Tungsten has high melting point.' },
+      { symbol: 'Re', name: 'Rhenium', atomicNumber: 75, atomicMass: 186.21, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d5', yearDiscovered: 1925, category: 'transition', phase: 'solid', group: 7, period: 6, description: 'Rhenium is rare.' },
+      { symbol: 'Os', name: 'Osmium', atomicNumber: 76, atomicMass: 190.23, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d6', yearDiscovered: 1803, category: 'transition', phase: 'solid', group: 8, period: 6, description: 'Osmium is densest.' },
+      { symbol: 'Ir', name: 'Iridium', atomicNumber: 77, atomicMass: 192.22, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d7', yearDiscovered: 1803, category: 'transition', phase: 'solid', group: 9, period: 6, description: 'Iridium is in spark plugs.' },
+      { symbol: 'Pt', name: 'Platinum', atomicNumber: 78, atomicMass: 195.08, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s1 4f14 5d9', yearDiscovered: 'Ancient', category: 'transition', phase: 'solid', group: 10, period: 6, description: 'Platinum is precious.' },
+      { symbol: 'Au', name: 'Gold', atomicNumber: 79, atomicMass: 196.97, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s1 4f14 5d10', yearDiscovered: 'Ancient', category: 'transition', phase: 'solid', group: 11, period: 6, description: 'Gold is malleable.' },
+      { symbol: 'Hg', name: 'Mercury', atomicNumber: 80, atomicMass: 200.59, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10', yearDiscovered: 'Ancient', category: 'transition', phase: 'liquid', group: 12, period: 6, description: 'Mercury is liquid at room temp.' },
+      { symbol: 'Tl', name: 'Thallium', atomicNumber: 81, atomicMass: 204.38, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p1', yearDiscovered: 1861, category: 'post-transition', phase: 'solid', group: 13, period: 6, description: 'Thallium is toxic.' },
+      { symbol: 'Pb', name: 'Lead', atomicNumber: 82, atomicMass: 207.2, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p2', yearDiscovered: 'Ancient', category: 'post-transition', phase: 'solid', group: 14, period: 6, description: 'Lead is heavy.' },
+      { symbol: 'Bi', name: 'Bismuth', atomicNumber: 83, atomicMass: 208.98, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p3', yearDiscovered: 'Ancient', category: 'post-transition', phase: 'solid', group: 15, period: 6, description: 'Bismuth has low toxicity.' },
+      { symbol: 'Po', name: 'Polonium', atomicNumber: 84, atomicMass: 209, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p4', yearDiscovered: 1898, category: 'metalloid', phase: 'solid', group: 16, period: 6, description: 'Polonium is radioactive.' },
+      { symbol: 'At', name: 'Astatine', atomicNumber: 85, atomicMass: 210, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p5', yearDiscovered: 1940, category: 'halogen', phase: 'solid', group: 17, period: 6, description: 'Astatine is rare.' },
+      { symbol: 'Rn', name: 'Radon', atomicNumber: 86, atomicMass: 222, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6', yearDiscovered: 1900, category: 'noble', phase: 'gas', group: 18, period: 6, description: 'Radon is radioactive.' },
+      { symbol: 'Fr', name: 'Francium', atomicNumber: 87, atomicMass: 223, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s1', yearDiscovered: 1939, category: 'alkali', phase: 'solid', group: 1, period: 7, description: 'Francium is highly radioactive.' },
+      { symbol: 'Ra', name: 'Radium', atomicNumber: 88, atomicMass: 226, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2', yearDiscovered: 1898, category: 'alkaline', phase: 'solid', group: 2, period: 7, description: 'Radium glows.' },
+      { symbol: 'Ac', name: 'Actinium', atomicNumber: 89, atomicMass: 227, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 6d1', yearDiscovered: 1899, category: 'actinide', phase: 'solid', group: 3, period: 9, description: 'Actinium is radioactive.' },
+      { symbol: 'Th', name: 'Thorium', atomicNumber: 90, atomicMass: 232.04, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 6d2', yearDiscovered: 1829, category: 'actinide', phase: 'solid', group: 4, period: 9, description: 'Thorium is in nuclear fuel.' },
+      { symbol: 'Pa', name: 'Protactinium', atomicNumber: 91, atomicMass: 231.04, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f2 6d1', yearDiscovered: 1913, category: 'actinide', phase: 'solid', group: 5, period: 9, description: 'Protactinium is rare.' },
+      { symbol: 'U', name: 'Uranium', atomicNumber: 92, atomicMass: 238.03, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f3 6d1', yearDiscovered: 1789, category: 'actinide', phase: 'solid', group: 6, period: 9, description: 'Uranium is fissile.' },
+      { symbol: 'Np', name: 'Neptunium', atomicNumber: 93, atomicMass: 237, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f4 6d1', yearDiscovered: 1940, category: 'actinide', phase: 'solid', group: 7, period: 9, description: 'Neptunium is synthetic.' },
+      { symbol: 'Pu', name: 'Plutonium', atomicNumber: 94, atomicMass: 244, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f6', yearDiscovered: 1940, category: 'actinide', phase: 'solid', group: 8, period: 9, description: 'Plutonium is in bombs.' },
+      { symbol: 'Am', name: 'Americium', atomicNumber: 95, atomicMass: 243, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f7', yearDiscovered: 1944, category: 'actinide', phase: 'solid', group: 9, period: 9, description: 'Americium is in smoke detectors.' },
+      { symbol: 'Cm', name: 'Curium', atomicNumber: 96, atomicMass: 247, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f7 6d1', yearDiscovered: 1944, category: 'actinide', phase: 'solid', group: 10, period: 9, description: 'Curium is synthetic.' },
+      { symbol: 'Bk', name: 'Berkelium', atomicNumber: 97, atomicMass: 247, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f9', yearDiscovered: 1949, category: 'actinide', phase: 'solid', group: 11, period: 9, description: 'Berkelium is rare.' },
+      { symbol: 'Cf', name: 'Californium', atomicNumber: 98, atomicMass: 251, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f10', yearDiscovered: 1950, category: 'actinide', phase: 'solid', group: 12, period: 9, description: 'Californium is used in neutron sources.' },
+      { symbol: 'Es', name: 'Einsteinium', atomicNumber: 99, atomicMass: 252, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f11', yearDiscovered: 1952, category: 'actinide', phase: 'solid', group: 13, period: 9, description: 'Einsteinium is named after Einstein.' },
+      { symbol: 'Fm', name: 'Fermium', atomicNumber: 100, atomicMass: 257, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f12', yearDiscovered: 1952, category: 'actinide', phase: 'solid', group: 14, period: 9, description: 'Fermium is synthetic.' },
+      { symbol: 'Md', name: 'Mendelevium', atomicNumber: 101, atomicMass: 258, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f13', yearDiscovered: 1955, category: 'actinide', phase: 'solid', group: 15, period: 9, description: 'Mendelevium is named after Mendeleev.' },
+      { symbol: 'No', name: 'Nobelium', atomicNumber: 102, atomicMass: 259, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14', yearDiscovered: 1958, category: 'actinide', phase: 'solid', group: 16, period: 9, description: 'Nobelium is named after Nobel.' },
+      { symbol: 'Lr', name: 'Lawrencium', atomicNumber: 103, atomicMass: 262, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d1', yearDiscovered: 1961, category: 'actinide', phase: 'solid', group: 17, period: 9, description: 'Lawrencium is synthetic.' },
+      { symbol: 'Rf', name: 'Rutherfordium', atomicNumber: 104, atomicMass: 267, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d2', yearDiscovered: 1964, category: 'transition', phase: 'solid', group: 4, period: 7, description: 'Rutherfordium is synthetic.' },
+      { symbol: 'Db', name: 'Dubnium', atomicNumber: 105, atomicMass: 268, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d3', yearDiscovered: 1967, category: 'transition', phase: 'solid', group: 5, period: 7, description: 'Dubnium is synthetic.' },
+      { symbol: 'Sg', name: 'Seaborgium', atomicNumber: 106, atomicMass: 271, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d4', yearDiscovered: 1974, category: 'transition', phase: 'solid', group: 6, period: 7, description: 'Seaborgium is named after Seaborg.' },
+      { symbol: 'Bh', name: 'Bohrium', atomicNumber: 107, atomicMass: 272, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d5', yearDiscovered: 1981, category: 'transition', phase: 'solid', group: 7, period: 7, description: 'Bohrium is synthetic.' },
+      { symbol: 'Hs', name: 'Hassium', atomicNumber: 108, atomicMass: 270, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d6', yearDiscovered: 1984, category: 'transition', phase: 'solid', group: 8, period: 7, description: 'Hassium is synthetic.' },
+      { symbol: 'Mt', name: 'Meitnerium', atomicNumber: 109, atomicMass: 276, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d7', yearDiscovered: 1982, category: 'transition', phase: 'solid', group: 9, period: 7, description: 'Meitnerium is named after Meitner.' },
+      { symbol: 'Ds', name: 'Darmstadtium', atomicNumber: 110, atomicMass: 281, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d8', yearDiscovered: 1994, category: 'transition', phase: 'solid', group: 10, period: 7, description: 'Darmstadtium is synthetic.' },
+      { symbol: 'Rg', name: 'Roentgenium', atomicNumber: 111, atomicMass: 280, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d9', yearDiscovered: 1994, category: 'transition', phase: 'solid', group: 11, period: 7, description: 'Roentgenium is named after Roentgen.' },
+      { symbol: 'Cn', name: 'Copernicium', atomicNumber: 112, atomicMass: 285, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d10', yearDiscovered: 1996, category: 'transition', phase: 'solid', group: 12, period: 7, description: 'Copernicium is synthetic.' },
+      { symbol: 'Nh', name: 'Nihonium', atomicNumber: 113, atomicMass: 284, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d10 7p1', yearDiscovered: 2003, category: 'post-transition', phase: 'solid', group: 13, period: 7, description: 'Nihonium is synthetic.' },
+      { symbol: 'Fl', name: 'Flerovium', atomicNumber: 114, atomicMass: 289, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d10 7p2', yearDiscovered: 1998, category: 'post-transition', phase: 'solid', group: 14, period: 7, description: 'Flerovium is synthetic.' },
+      { symbol: 'Mc', name: 'Moscovium', atomicNumber: 115, atomicMass: 288, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d10 7p3', yearDiscovered: 2003, category: 'post-transition', phase: 'solid', group: 15, period: 7, description: 'Moscovium is synthetic.' },
+      { symbol: 'Lv', name: 'Livermorium', atomicNumber: 116, atomicMass: 293, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d10 7p4', yearDiscovered: 2000, category: 'post-transition', phase: 'solid', group: 16, period: 7, description: 'Livermorium is synthetic.' },
+      { symbol: 'Ts', name: 'Tennessine', atomicNumber: 117, atomicMass: 294, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d10 7p5', yearDiscovered: 2009, category: 'halogen', phase: 'solid', group: 17, period: 7, description: 'Tennessine is synthetic.' },
+      { symbol: 'Og', name: 'Oganesson', atomicNumber: 118, atomicMass: 294, electronConfig: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d10 7p6', yearDiscovered: 2002, category: 'noble', phase: 'solid', group: 18, period: 7, description: 'Oganesson is synthetic.' }
+    ];
+
+    const table = document.getElementById('table');
+    const infoPanel = document.getElementById('infoPanel');
+    const infoContent = document.getElementById('infoContent');
+    const searchBar = document.getElementById('searchBar');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const phaseFilter = document.getElementById('phaseFilter');
+    const atomicRangeFilter = document.getElementById('atomicRangeFilter');
+    const themeToggle = document.getElementById('themeToggle');
+    const background = document.getElementById('background');
+
+    let selectedTile = null;
+    let currentTheme = 'default';
+
+    function fuzzyMatch(query, text) {
+      const queryLower = query.toLowerCase();
+      const textLower = text.toLowerCase();
+      let queryIndex = 0;
+      for (let i = 0; i < textLower.length && queryIndex < queryLower.length; i++) {
+        if (textLower[i] === queryLower[queryIndex]) queryIndex++;
+      }
+      return queryIndex === queryLower.length;
+    }
+
+    function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func(...args), wait);
+      };
+    }
+
+    function getGridPosition(group, period) {
+      if (period === 8) return { col: group - 3 + 2, row: 5 };
+      if (period === 9) return { col: group - 3 + 2, row: 6 };
+      if (group >= 3 && period >= 1) return { col: group, row: period };
+      return { col: group || 1, row: period };
+    }
+
+    const elementMap = new Map();
+
+    function renderTable(filteredElements = null) {
+      table.innerHTML = '';
+      elementMap.clear();
+      const showAll = filteredElements === null;
+      const filteredSet = filteredElements ? new Set(filteredElements) : null;
+      elements.forEach(el => {
+        const pos = getGridPosition(el.group, el.period);
+        const tile = document.createElement('div');
+        tile.className = `tile ${el.category}`;
+        tile.style.gridColumn = pos.col;
+        tile.style.gridRow = pos.row;
+        tile.setAttribute('tabindex', '0');
+        tile.setAttribute('aria-label', `${el.name}, atomic number ${el.atomicNumber}`);
+        tile.dataset.symbol = el.symbol;
+        if (filteredSet && !filteredSet.has(el)) {
+          tile.classList.add('hidden');
+        }
+        tile.innerHTML = `<span class="tile-symbol">${el.symbol}</span><span class="tile-number">${el.atomicNumber}</span>`;
+        elementMap.set(el.symbol, el);
+        table.appendChild(tile);
+      });
+    }
+
+    function showDetails(el, tile) {
+      if (selectedTile) selectedTile.classList.remove('highlight');
+      selectedTile = tile;
+      tile.classList.add('highlight');
+      infoContent.innerHTML = `
+        <h3>${el.name} (${el.symbol})</h3>
+        <p><strong>Atomic Number:</strong> ${el.atomicNumber}</p>
+        <p><strong>Atomic Mass:</strong> ${el.atomicMass}</p>
+        <p><strong>Electron Configuration:</strong> ${el.electronConfig}</p>
+        <p><strong>Phase:</strong> ${el.phase}</p>
+        <p><strong>Category:</strong> ${el.category}</p>
+        <p><strong>Year Discovered:</strong> ${el.yearDiscovered}</p>
+      `;
+      infoPanel.classList.add('show');
+    }
+
+    function handleTileClick(e) {
+      const tile = e.target.closest('.tile');
+      if (!tile || tile.classList.contains('hidden')) return;
+      const el = elementMap.get(tile.dataset.symbol);
+      if (el) showDetails(el, tile);
+    }
+
+    function handleTileKeydown(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        const tile = e.target;
+        if (tile.classList.contains('hidden')) return;
+        const el = elementMap.get(tile.dataset.symbol);
+        if (el) showDetails(el, tile);
+      }
+    }
+
+    table.addEventListener('click', handleTileClick);
+    table.addEventListener('keydown', handleTileKeydown);
+
+    function filterTable() {
+      let filtered = elements;
+      const query = searchBar.value.trim();
+      if (query) {
+        filtered = filtered.filter(el => fuzzyMatch(query, el.name) || fuzzyMatch(query, el.symbol));
+      }
+      if (categoryFilter.value) {
+        filtered = filtered.filter(el => el.category === categoryFilter.value);
+      }
+      if (phaseFilter.value) {
+        filtered = filtered.filter(el => el.phase === phaseFilter.value);
+      }
+      if (atomicRangeFilter.value) {
+        const [min, max] = atomicRangeFilter.value.split('-').map(Number);
+        filtered = filtered.filter(el => el.atomicNumber >= min && el.atomicNumber <= max);
+      }
+      renderTable(filtered);
+      if (phaseFilter.value) {
+        table.querySelectorAll('.tile').forEach(tile => {
+          const el = elementMap.get(tile.dataset.symbol);
+          tile.classList.toggle('fade-out', el && el.phase !== phaseFilter.value);
+        });
+      }
+    }
+
+    function highlightCategory() {
+      const category = categoryFilter.value;
+      if (!category) return;
+      const tiles = table.querySelectorAll('.tile.' + category);
+      tiles.forEach(tile => {
+        tile.classList.add('highlight');
+        setTimeout(() => tile.classList.remove('highlight'), 1500);
+      });
+    }
+
+    function toggleTheme() {
+      if (currentTheme === 'default') {
+        document.body.classList.add('glassy-pastel');
+        currentTheme = 'glassy-pastel';
+        themeToggle.textContent = '☀️ Theme';
+      } else {
+        document.body.classList.remove('glassy-pastel');
+        currentTheme = 'default';
+        themeToggle.textContent = '🌙 Theme';
+      }
+    }
+
+    searchBar.addEventListener('input', debounce(filterTable, 250));
+    categoryFilter.addEventListener('change', () => { filterTable(); highlightCategory(); });
+    phaseFilter.addEventListener('change', filterTable);
+    atomicRangeFilter.addEventListener('change', filterTable);
+    themeToggle.addEventListener('click', toggleTheme);
+
+    document.addEventListener('click', (e) => {
+      if (!infoPanel.contains(e.target) && !e.target.closest('.tile')) {
+        infoPanel.classList.remove('show');
+        if (selectedTile) {
+          selectedTile.classList.remove('highlight');
+          selectedTile = null;
+        }
+      }
+    });
+
+    for (let i = 0; i < 30; i++) {
+      const particle = document.createElement('div');
+      particle.className = 'particle';
+      particle.style.left = `${Math.random() * 100}%`;
+      particle.style.animationDelay = `${Math.random() * 10}s`;
+      background.appendChild(particle);
+    }
+
+    renderTable();
+  </script>
+
+<!-- Back Button -->
+<a href="../index.html" class="back-btn">← Back to Dashboard</a>
+</body>
+</html>

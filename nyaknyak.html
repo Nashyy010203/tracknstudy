@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Converter</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .converter-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .converter-section h2 {
+            margin-top: 0;
+            color: #ffd700;
+            font-size: 1.5em;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+
+        input, select, textarea {
+            padding: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            font-size: 16px;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #ffd700;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        button {
+            padding: 12px 24px;
+            background: linear-gradient(45deg, #ff6b6b, #ffa500);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(0, 255, 0, 0.1);
+            border: 2px solid rgba(0, 255, 0, 0.3);
+            border-radius: 8px;
+            font-weight: bold;
+            word-wrap: break-word;
+        }
+
+        .error {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(255, 0, 0, 0.1);
+            border: 2px solid rgba(255, 0, 0, 0.3);
+            border-radius: 8px;
+            color: #ffcccc;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .tab-button {
+            padding: 10px 20px;
+            margin: 0 5px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .tab-button.active {
+            background: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .converter-content {
+            display: none;
+        }
+
+        .converter-content.active {
+            display: block;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2, .grid-3 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Universal Converter</h1>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('units')">Unit Converter</button>
+            <button class="tab-button" onclick="showTab('text')">Text Tools</button>
+            <button class="tab-button" onclick="showTab('encoders')">Encoders</button>
+        </div>
+
+        <!-- Unit Converter -->
+        <div id="units" class="converter-content active">
+            <div class="converter-section">
+                <h2>📏 Unit Converter</h2>
+                <div class="grid-3">
+                    <div>
+                        <label>From Unit:</label>
+                        <select id="fromUnit">
+                            <option value="meters" data-category="length">Meters</option>
+                            <option value="feet" data-category="length">Feet</option>
+                            <option value="inches" data-category="length">Inches</option>
+                            <option value="centimeters" data-category="length">Centimeters</option>
+                            <option value="kilometers" data-category="length">Kilometers</option>
+                            <option value="miles" data-category="length">Miles</option>
+                            <option value="celsius" data-category="temperature">Celsius</option>
+                            <option value="fahrenheit" data-category="temperature">Fahrenheit</option>
+                            <option value="kelvin" data-category="temperature">Kelvin</option>
+                            <option value="grams" data-category="weight">Grams</option>
+                            <option value="kilograms" data-category="weight">Kilograms</option>
+                            <option value="pounds" data-category="weight">Pounds</option>
+                            <option value="ounces" data-category="weight">Ounces</option>
+                            <option value="liters" data-category="volume">Liters</option>
+                            <option value="milliliters" data-category="volume">Milliliters</option>
+                            <option value="gallons" data-category="volume">Gallons</option>
+                            <option value="cups" data-category="volume">Cups</option>
+                            <option value="seconds" data-category="time">Seconds</option>
+                            <option value="minutes" data-category="time">Minutes</option>
+                            <option value="hours" data-category="time">Hours</option>
+                            <option value="days" data-category="time">Days</option>
+                            <option value="bytes" data-category="data">Bytes</option>
+                            <option value="kilobytes" data-category="data">Kilobytes</option>
+                            <option value="megabytes" data-category="data">Megabytes</option>
+                            <option value="gigabytes" data-category="data">Gigabytes</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Value:</label>
+                        <input type="number" id="unitValue" placeholder="Enter value">
+                    </div>
+                    <div>
+                        <label>To Unit:</label>
+                        <select id="toUnit">
+                            <option value="feet">Feet</option>
+                            <option value="meters">Meters</option>
+                            <option value="inches">Inches</option>
+                            <option value="centimeters">Centimeters</option>
+                            <option value="kilometers">Kilometers</option>
+                            <option value="miles">Miles</option>
+                            <option value="fahrenheit">Fahrenheit</option>
+                            <option value="celsius">Celsius</option>
+                            <option value="kelvin">Kelvin</option>
+                            <option value="kilograms">Kilograms</option>
+                            <option value="grams">Grams</option>
+                            <option value="pounds">Pounds</option>
+                            <option value="ounces">Ounces</option>
+                        </select>
+                    </div>
+                </div>
+                <button onclick="convertUnits()">Convert Units</button>
+                <button onclick="resetUnits()">Reset</button>
+                <div id="unitResult" class="result" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- Text Tools -->
+        <div id="text" class="converter-content">
+            <div class="converter-section">
+                <h2>📝 Text Tools</h2>
+                <div class="input-group">
+                    <textarea id="textInput" rows="4" placeholder="Enter your text here..."></textarea>
+                </div>
+                <div class="grid-2">
+                    <button onclick="countWords()">Count Words</button>
+                    <button onclick="countCharacters()">Count Characters</button>
+                    <button onclick="toUpperCase()">To Uppercase</button>
+                    <button onclick="toLowerCase()">To Lowercase</button>
+                    <button onclick="reverseText()">Reverse Text</button>
+                    <button onclick="removeSpaces()">Remove Extra Spaces</button>
+                </div>
+                <button onclick="resetText()">Reset</button>
+                <div id="textResult" class="result" style="display: none;"></div>
+            </div>
+        </div>
+
+
+        <!-- Encoders -->
+        <div id="encoders" class="converter-content">
+            <div class="converter-section">
+                <h2>🔐 Encoders/Decoders</h2>
+                <div class="input-group">
+                    <textarea id="encodeInput" rows="3" placeholder="Enter text to encode/decode..."></textarea>
+                </div>
+                <div class="grid-2">
+                    <button onclick="base64Encode()">Base64 Encode</button>
+                    <button onclick="base64Decode()">Base64 Decode</button>
+                    <button onclick="urlEncode()">URL Encode</button>
+                    <button onclick="urlDecode()">URL Decode</button>
+                    <button onclick="rot13()">ROT13</button>
+                    <button onclick="binaryEncode()">Text to Binary</button>
+                </div>
+                <button onclick="resetEncoders()">Reset</button>
+                <div id="encodeResult" class="result" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all tabs
+            const contents = document.querySelectorAll('.converter-content');
+            contents.forEach(content => content.classList.remove('active'));
+
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(button => button.classList.remove('active'));
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        const unitCategories = {
+            length: ['meters', 'feet', 'inches', 'centimeters', 'kilometers', 'miles'],
+            temperature: ['celsius', 'fahrenheit', 'kelvin'],
+            weight: ['grams', 'kilograms', 'pounds', 'ounces'],
+            volume: ['liters', 'milliliters', 'gallons', 'cups'],
+            time: ['seconds', 'minutes', 'hours', 'days'],
+            data: ['bytes', 'kilobytes', 'megabytes', 'gigabytes']
+        };
+
+        function populateToUnit(category) {
+            const toUnit = document.getElementById('toUnit');
+            toUnit.innerHTML = '';
+            unitCategories[category].forEach(unit => {
+                const option = document.createElement('option');
+                option.value = unit;
+                option.textContent = unit.charAt(0).toUpperCase() + unit.slice(1);
+                toUnit.appendChild(option);
+            });
+        }
+
+        document.getElementById('fromUnit').addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const category = selectedOption.getAttribute('data-category');
+            populateToUnit(category);
+        });
+
+        // Unit Converter Functions
+        function convertUnits() {
+            const value = parseFloat(document.getElementById('unitValue').value);
+            const fromUnit = document.getElementById('fromUnit').value;
+            const toUnit = document.getElementById('toUnit').value;
+            const resultDiv = document.getElementById('unitResult');
+
+            if (isNaN(value)) {
+                showError('Please enter a valid number', 'unitResult');
+                return;
+            }
+
+            let result = convertValue(value, fromUnit, toUnit);
+
+            if (result === null) {
+                showError('Invalid conversion: Units belong to different categories.', 'unitResult');
+                return;
+            }
+
+            // Improved decimal formatting
+            const formattedResult = formatResult(result);
+            resultDiv.innerHTML = `${value} ${fromUnit} = ${formattedResult} ${toUnit}`;
+            resultDiv.style.display = 'block';
+        }
+
+        function formatResult(value) {
+            // Round to 2 decimal places
+            const rounded = Math.round(value * 100) / 100;
+
+            // If it's a whole number, return as integer
+            if (rounded % 1 === 0) {
+                return rounded.toString();
+            }
+
+            // Otherwise, return with 2 decimal places, removing trailing zeros if possible
+            const fixed = rounded.toFixed(2);
+            return fixed.replace(/\.?0+$/, '');
+        }
+
+        function convertValue(value, from, to) {
+            // Check if units are in the same category
+            const fromCategory = getUnitCategory(from);
+            const toCategory = getUnitCategory(to);
+
+            if (fromCategory !== toCategory) {
+                return null; // Invalid conversion
+            }
+
+            // Convert everything to base units first, then to target unit
+            const baseValue = toBaseUnit(value, from);
+            return fromBaseUnit(baseValue, to);
+        }
+
+        function getUnitCategory(unit) {
+            for (const [category, units] of Object.entries(unitCategories)) {
+                if (units.includes(unit)) {
+                    return category;
+                }
+            }
+            return null;
+        }
+
+        function toBaseUnit(value, unit) {
+            const conversions = {
+                // Length (base: meters)
+                meters: value,
+                feet: value * 0.3048,
+                inches: value * 0.0254,
+                centimeters: value * 0.01,
+                kilometers: value * 1000,
+                miles: value * 1609.344,
+
+                // Temperature (base: celsius)
+                celsius: value,
+                fahrenheit: (value - 32) * 5/9,
+                kelvin: value - 273.15,
+
+                // Weight (base: grams)
+                grams: value,
+                kilograms: value * 1000,
+                pounds: value * 453.592,
+                ounces: value * 28.3495,
+
+                // Volume (base: liters)
+                liters: value,
+                milliliters: value * 0.001,
+                gallons: value * 3.78541,
+                cups: value * 0.236588,
+
+                // Time (base: seconds)
+                seconds: value,
+                minutes: value * 60,
+                hours: value * 3600,
+                days: value * 86400,
+
+                // Data (base: bytes)
+                bytes: value,
+                kilobytes: value * 1024,
+                megabytes: value * 1024 * 1024,
+                gigabytes: value * 1024 * 1024 * 1024
+            };
+            return conversions[unit] || value;
+        }
+
+        function fromBaseUnit(value, unit) {
+            const conversions = {
+                // Length (from meters)
+                meters: value,
+                feet: value / 0.3048,
+                inches: value / 0.0254,
+                centimeters: value / 0.01,
+                kilometers: value / 1000,
+                miles: value / 1609.344,
+
+                // Temperature (from celsius)
+                celsius: value,
+                fahrenheit: value * 9/5 + 32,
+                kelvin: value + 273.15,
+
+                // Weight (from grams)
+                grams: value,
+                kilograms: value / 1000,
+                pounds: value / 453.592,
+                ounces: value / 28.3495,
+
+                // Volume (from liters)
+                liters: value,
+                milliliters: value / 0.001,
+                gallons: value / 3.78541,
+                cups: value / 0.236588,
+
+                // Time (from seconds)
+                seconds: value,
+                minutes: value / 60,
+                hours: value / 3600,
+                days: value / 86400,
+
+                // Data (from bytes)
+                bytes: value,
+                kilobytes: value / 1024,
+                megabytes: value / (1024 * 1024),
+                gigabytes: value / (1024 * 1024 * 1024)
+            };
+            return conversions[unit] || value;
+        }
+
+        // Text Tools Functions
+        function countWords() {
+            const text = document.getElementById('textInput').value;
+            const words = text.trim().split(/\s+/).filter(word => word.length > 0);
+            showResult(`Word count: ${words.length}`, 'textResult');
+        }
+
+        function countCharacters() {
+            const text = document.getElementById('textInput').value;
+            const chars = text.length;
+            const charsNoSpaces = text.replace(/\s/g, '').length;
+            showResult(`Total characters: ${chars}<br>Characters (no spaces): ${charsNoSpaces}`, 'textResult');
+        }
+
+        function toUpperCase() {
+            const text = document.getElementById('textInput').value;
+            document.getElementById('textInput').value = text.toUpperCase();
+            showResult('Text converted to uppercase!', 'textResult');
+        }
+
+        function toLowerCase() {
+            const text = document.getElementById('textInput').value;
+            document.getElementById('textInput').value = text.toLowerCase();
+            showResult('Text converted to lowercase!', 'textResult');
+        }
+
+        function reverseText() {
+            const text = document.getElementById('textInput').value;
+            document.getElementById('textInput').value = text.split('').reverse().join('');
+            showResult('Text reversed!', 'textResult');
+        }
+
+        function removeSpaces() {
+            const text = document.getElementById('textInput').value;
+            document.getElementById('textInput').value = text.replace(/\s+/g, ' ').trim();
+            showResult('Extra spaces removed!', 'textResult');
+        }
+
+
+        // Encoder Functions
+        function base64Encode() {
+            const text = document.getElementById('encodeInput').value;
+            try {
+                const encoded = btoa(text);
+                showResult(`Base64 Encoded: ${encoded}`, 'encodeResult');
+            } catch (e) {
+                showError('Encoding failed. Please check your input.', 'encodeResult');
+            }
+        }
+
+        function base64Decode() {
+            const text = document.getElementById('encodeInput').value;
+            try {
+                const decoded = atob(text);
+                showResult(`Base64 Decoded: ${decoded}`, 'encodeResult');
+            } catch (e) {
+                showError('Decoding failed. Please check your input.', 'encodeResult');
+            }
+        }
+
+        function urlEncode() {
+            const text = document.getElementById('encodeInput').value;
+            const encoded = encodeURIComponent(text);
+            showResult(`URL Encoded: ${encoded}`, 'encodeResult');
+        }
+
+        function urlDecode() {
+            const text = document.getElementById('encodeInput').value;
+            try {
+                const decoded = decodeURIComponent(text);
+                showResult(`URL Decoded: ${decoded}`, 'encodeResult');
+            } catch (e) {
+                showError('Decoding failed. Please check your input.', 'encodeResult');
+            }
+        }
+
+        function rot13() {
+            const text = document.getElementById('encodeInput').value;
+            const result = text.replace(/[a-zA-Z]/g, function(c) {
+                return String.fromCharCode((c <= 'Z' ? 90 : 122) >= (c = c.charCodeAt(0) + 13) ? c : c - 26);
+            });
+            showResult(`ROT13: ${result}`, 'encodeResult');
+        }
+
+        function binaryEncode() {
+            const text = document.getElementById('encodeInput').value;
+            const binary = text.split('').map(char => {
+                return char.charCodeAt(0).toString(2).padStart(8, '0');
+            }).join(' ');
+            showResult(`Binary: ${binary}`, 'encodeResult');
+        }
+
+        // Reset Functions
+        function resetUnits() {
+            document.getElementById('unitValue').value = '';
+            document.getElementById('fromUnit').value = 'meters';
+            populateToUnit('length');
+            document.getElementById('toUnit').value = 'feet';
+            document.getElementById('unitResult').style.display = 'none';
+        }
+
+        function resetText() {
+            document.getElementById('textInput').value = '';
+            document.getElementById('textResult').style.display = 'none';
+        }
+
+        function resetEncoders() {
+            document.getElementById('encodeInput').value = '';
+            document.getElementById('encodeResult').style.display = 'none';
+        }
+
+        // Utility Functions
+        function showResult(message, resultId) {
+            const resultDiv = document.getElementById(resultId);
+            resultDiv.innerHTML = message;
+            resultDiv.className = 'result';
+            resultDiv.style.display = 'block';
+        }
+
+        function showError(message, resultId) {
+            const resultDiv = document.getElementById(resultId);
+            resultDiv.innerHTML = message;
+            resultDiv.className = 'error';
+            resultDiv.style.display = 'block';
+        }
+
+        // Initialize with some sample data
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('fromUnit').value = 'meters';
+            populateToUnit('length');
+            document.getElementById('toUnit').value = 'feet';
+            document.getElementById('unitValue').value = '1';
+            document.getElementById('textInput').value = 'Hello, World! This is a sample text for testing.';
+            document.getElementById('encodeInput').value = 'Hello World';
+        });
+    </script>
+
+    <!-- Back Button -->
+<a href="index.html" class="back-btn">← Back to Dashboard</a>
+
+<style>
+  .back-btn {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 18px;
+    background-color: #6a0dad; /* purple tone */
+    color: #fff;
+    text-decoration: none;
+    border-radius: 6px;
+    font-family: 'Segoe UI', sans-serif;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+
+  .back-btn:hover {
+    background-color: #4b1463; /* darker purple */
+    transform: translateY(-2px); /* subtle lift */
+  }
+</style>
+</body>
+</html>

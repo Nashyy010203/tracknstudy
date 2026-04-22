@@ -1,0 +1,1567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Reviewer Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+
+        @media (min-width: 768px) {
+            .main-content {
+                grid-template-columns: 300px 1fr;
+            }
+        }
+
+        .sidebar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .main-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #4a5568;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        .file-upload {
+            margin-bottom: 25px;
+        }
+
+        .file-upload label {
+            display: block;
+            padding: 15px;
+            border: 2px dashed #cbd5e0;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+        }
+
+        .file-upload label:hover {
+            border-color: #667eea;
+            background: #eef2ff;
+        }
+
+        .file-upload input[type="file"] {
+            display: none;
+        }
+
+        .file-info {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #718096;
+        }
+
+        .settings-group {
+            margin-bottom: 20px;
+        }
+
+        .settings-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        select, input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        select:focus, input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        .question-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+        }
+
+        .question-text {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            color: #2d3748;
+        }
+
+        .answer-options {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            background: #eef2ff;
+        }
+
+        .option.selected {
+            border-color: #667eea;
+            background: #eef2ff;
+        }
+
+        .option.correct {
+            border-color: #48bb78;
+            background: #f0fff4;
+        }
+
+        .option.incorrect {
+            border-color: #f56565;
+            background: #fed7d7;
+        }
+
+        .option-letter {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .option.selected .option-letter {
+            background: #667eea;
+            color: white;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .feedback.correct {
+            background: #f0fff4;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
+        }
+
+        .feedback.incorrect {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 1px solid #feb2b2;
+        }
+
+        .explanation {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f7fafc;
+            border-radius: 6px;
+            font-size: 0.9em;
+            color: #4a5568;
+            border-left: 3px solid #667eea;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .stats {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .stats h3 {
+            margin-bottom: 15px;
+            color: #2d3748;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.8em;
+            color: #718096;
+            margin-top: 5px;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                order: 2;
+            }
+
+            .main-panel {
+                order: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1> Reviewer Generator</h1>
+            <p>Upload content and generate true/false questions with AI-powered analysis</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <h2 class="section-title">📁 Content Source</h2>
+
+                <div class="file-upload">
+                    <label for="fileInput">
+                        📎 Upload File<br>
+                        <small>TXT, PDF, or DOCX files supported</small>
+                    </label>
+                    <input type="file" id="fileInput" accept=".txt,.pdf,.docx" onchange="handleFileUpload(event)">
+                    <div id="fileInfo" class="file-info"></div>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #4a5568;">Or paste your text here:</label>
+                    <textarea id="manualText" rows="6" placeholder="Paste your text content here, or upload a file above. The system will analyze it and generate true/false questions...
+
+Example: The solar system consists of the Sun and eight planets. Mercury is the closest planet to the Sun. Venus is the hottest planet due to its thick atmosphere."></textarea>
+                </div>
+
+                <h2 class="section-title">⚙️ Quiz Settings</h2>
+
+                <div class="settings-group">
+                    <label for="questionType">Question Type:</label>
+                    <select id="questionType">
+                        <option value="truefalse">True/False Only</option>
+                        <option value="fillblank">Fill-in-the-Blank Only</option>
+                        <option value="mcq">Multiple Choice Only</option>
+                        <option value="mixed">Mixed Types</option>
+                    </select>
+                </div>
+
+                <div class="settings-group">
+                    <label for="questionCount">Number of Questions:</label>
+                    <input type="number" id="questionCount" min="1" max="20" value="5">
+                </div>
+
+                <button class="btn btn-primary" onclick="generateQuiz()" id="generateBtn">
+                    🚀 Generate Quiz
+                </button>
+
+                <button class="btn btn-secondary" onclick="resetQuiz()" id="resetBtn">
+                    🔄 Reset Quiz
+                </button>
+
+                <div class="stats" id="quizStats" style="display: none;">
+                    <h3>📊 Quiz Progress</h3>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value" id="answeredCount">0</div>
+                            <div class="stat-label">Answered</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="correctCount">0</div>
+                            <div class="stat-label">Correct</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="scorePercent">0%</div>
+                            <div class="stat-label">Score</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Panel -->
+            <div class="main-panel">
+                <div id="welcomeMessage">
+                    <h2 class="section-title">👋 Welcome to True/False Quiz Generator!</h2>
+                    <p style="margin-bottom: 20px; line-height: 1.6;">
+                        Upload a document or paste text content, and our system will generate true/false questions
+                        based on the content analysis. Test your understanding with instant feedback.
+                    </p>
+                    <div style="background: #f8fafc; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                        <h3 style="color: #4a5568; margin-bottom: 10px;">🎯 Features:</h3>
+                        <ul style="color: #718096; line-height: 1.6;">
+                            <li>• Intelligent true/false question generation</li>
+                            <li>• Support for TXT, PDF, and DOCX files</li>
+                            <li>• Real-time answer checking with detailed feedback</li>
+                            <li>• Progress tracking and performance analytics</li>
+                            <li>• Modular design for easy upgrades</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div id="quizContainer" class="hidden">
+                    <h2 class="section-title">🧠 Your Quiz</h2>
+                    <div id="questionsList"></div>
+                </div>
+
+                <div id="resultsContainer" class="hidden">
+                    <h2 class="section-title">🎉 Quiz Complete!</h2>
+                    <div id="finalResults"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE_URL = 'http://localhost:8001/api';
+        
+        // Global variables
+        let uploadedText = '';
+        let currentQuiz = [];
+        let userAnswers = [];
+        let quizStats = { total: 0, answered: 0, correct: 0 };
+
+        // Main fetch MCQ from PHP API
+        async function fetchMCQFromAPI(text) {
+            console.log('fetchMCQFromAPI called with text length:', text.length);
+            try {
+                const response = await fetch('./api_mcq.php', {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: text })
+                });
+                
+                console.log('API Response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+                
+                const mcqs = await response.json();
+                console.log('API returned mcqs:', mcqs.length);
+                
+                if (!Array.isArray(mcqs) || mcqs.length === 0) {
+                    return [];
+                }
+                
+                // Map API format to quiz format + add explanation
+                return mcqs.map(mcq => ({
+                    type: 'mcq',
+                    question: mcq.question,
+                    options: mcq.choices,
+                    correctAnswer: mcq.correctAnswer,
+                    explanation: 'Generated from text analysis. Select the best answer.'
+                }));
+            } catch (error) {
+                console.error('MCQ API failed:', error);
+                return [];
+            }
+        }
+
+        // PDF text extraction function
+        async function extractTextFromPDF(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            let fullText = '';
+
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                const pageText = textContent.items.map(item => item.str).join(' ');
+                fullText += pageText + '\n';
+            }
+
+            return fullText;
+        }
+
+        // File upload handler
+        async function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const fileInfo = document.getElementById('fileInfo');
+            fileInfo.innerHTML = `📄 ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+
+            try {
+                if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
+                    // Handle text files directly
+                    const text = await file.text();
+                    uploadedText = text;
+                    fileInfo.innerHTML += '<br><span style="color: #48bb78;">✓ Text file loaded successfully!</span>';
+                } else if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                    // Handle PDF files with PDF.js
+                    fileInfo.innerHTML += '<br><span style="color: #667eea;">⏳ Processing PDF...</span>';
+                    const text = await extractTextFromPDF(file);
+                    uploadedText = text;
+                    fileInfo.innerHTML += '<br><span style="color: #48bb78;">✓ PDF processed successfully!</span>';
+                } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || file.name.endsWith('.docx')) {
+                    // For DOCX files, show message (DOCX parsing is complex without backend)
+                    fileInfo.innerHTML += '<br><span style="color: #f56565;">⚠️ DOCX processing requires backend server. Please convert to PDF or paste text manually.</span>';
+                } else {
+                    // For unsupported files
+                    fileInfo.innerHTML += '<br><span style="color: #f56565;">⚠️ Unsupported file type. Please use .txt or .pdf files, or paste text manually.</span>';
+                }
+            } catch (error) {
+                fileInfo.innerHTML += `<br><span style="color: #f56565;">⚠️ Error reading file: ${error.message}</span>`;
+                console.error('File read error:', error);
+            }
+        }
+
+        // Quiz generation
+        async function generateQuiz() {
+            const manualText = document.getElementById('manualText').value.trim();
+            const textToUse = uploadedText || manualText;
+
+            if (!textToUse) {
+                alert('Please either upload a file or enter text manually.');
+                return;
+            }
+
+            const generateBtn = document.getElementById('generateBtn');
+            const originalText = generateBtn.innerHTML;
+            generateBtn.innerHTML = '<div class="loading"></div>Analyzing Content...';
+            generateBtn.disabled = true;
+
+            try {
+                const questionType = document.getElementById('questionType').value;
+                const questions = await generateQuestions(textToUse, questionType);
+                currentQuiz = questions;
+                userAnswers = new Array(currentQuiz.length).fill(null);
+                quizStats = { total: currentQuiz.length, answered: 0, correct: 0 };
+
+                displayQuiz();
+                updateStats();
+
+                generateBtn.innerHTML = originalText;
+                generateBtn.disabled = false;
+
+                document.getElementById('welcomeMessage').classList.add('hidden');
+                document.getElementById('quizContainer').classList.remove('hidden');
+                document.getElementById('quizStats').style.display = 'block';
+            } catch (error) {
+                alert('Error generating quiz: ' + error.message);
+                generateBtn.innerHTML = originalText;
+                generateBtn.disabled = false;
+            }
+        }
+
+        // Main question generation function
+        async function generateQuestions(text, questionType) {
+            const questionCount = parseInt(document.getElementById('questionCount').value);
+            const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 20);
+            const words = extractKeyWords(text);
+
+            const questions = [];
+
+            // For MCQ, use PHP API (as requested)
+            if (questionType === 'mcq') {
+                console.log('Calling PHP API for MCQ generation...');
+                try {
+                    const mcqs = await fetchMCQFromAPI(text);
+                    console.log('MCQ from API:', mcqs);
+                    if (mcqs && mcqs.length > 0) {
+                        questions.push(...mcqs.slice(0, questionCount));
+                    } else {
+                        // Fallback to JavaScript generation if API fails
+                        console.log('API returned empty, using JavaScript fallback');
+                        const mcqsFallback = generateAllMCQ(text, questionCount);
+                        questions.push(...mcqsFallback);
+                    }
+                } catch (error) {
+                    console.error('MCQ API error:', error);
+                    // Fallback to JavaScript
+                    const mcqsFallback = generateAllMCQ(text, questionCount);
+                    questions.push(...mcqsFallback);
+                }
+                console.log(`MCQ generated: ${questions.length} questions`);
+                return questions;
+            }
+
+            // For other types, generate one by one
+            for (let i = 0; i < Math.min(questionCount, sentences.length); i++) {
+                let question;
+
+                if (questionType === 'mixed') {
+                    const types = ['truefalse', 'fillblank', 'mcq'];
+                    const randomType = types[Math.floor(Math.random() * types.length)];
+                    question = generateQuestionByType(randomType, sentences, words, text);
+                } else {
+                    question = generateQuestionByType(questionType, sentences, words, text);
+                }
+
+                if (question && question.type) {
+                    questions.push(question);
+                }
+            }
+
+            console.log('Total questions generated:', questions.length);
+            return questions;
+        }
+
+        // Generate all MCQs using JavaScript (no PHP backend)
+        function generateAllMCQ(text, count) {
+            const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 15);
+            const results = generateMCQFromSentencesJS(sentences);
+            
+            // Shuffle the results and take the requested count
+            const shuffled = results.sort(() => Math.random() - 0.5);
+            return shuffled.slice(0, count).map(mcq => ({
+                type: 'mcq',
+                question: mcq.question,
+                options: shuffleArray([...mcq.options]), // Shuffle options for display
+                correctAnswer: mcq.answer, // Keep original answer value - comparison works via text match
+                explanation: 'Generated from text analysis. Select the best answer.'
+            }));
+        }
+
+        // Generate question by specific type (now uses JavaScript only for all types)
+        function generateQuestionByType(type, sentences, words, fullText) {
+            const sentence = sentences[Math.floor(Math.random() * sentences.length)];
+
+            switch (type) {
+                case 'truefalse':
+                    return generateTrueFalseQuestion(sentence);
+                case 'fillblank':
+                    return generateFillBlankQuestion(sentence, words);
+                case 'mcq':
+                    // Use JavaScript-based MCQ generation with context-aware distractors
+                    const mcqs = generateMCQFromSentencesJS(sentences);
+                    if (mcqs.length > 0) {
+                        const mcq = mcqs[Math.floor(Math.random() * mcqs.length)];
+                        return {
+                            type: 'mcq',
+                            question: mcq.question,
+                            options: shuffleArray([...mcq.options]),
+                            correctAnswer: mcq.answer,
+                            explanation: 'This question was generated from the provided text.'
+                        };
+                    }
+                    // Fallback: use the text-based MCQ generator
+                    const fallbackMcq = generateMCQFromText(fullText);
+                    if (fallbackMcq && fallbackMcq.type === 'mcq') {
+                        return fallbackMcq;
+                    }
+                    return generateTrueFalseQuestion(sentence);
+                default:
+                    return generateTrueFalseQuestion(sentence);
+            }
+        }
+
+        // Generate MCQ using JavaScript (no PHP backend)
+        async function generateMCQFromBackend(text) {
+            console.log('MCQ API response: Starting MCQ generation...');
+            
+            // Use JavaScript-based MCQ generation
+            const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 10);
+            const mcqs = generateMCQFromSentencesJS(sentences);
+            
+            if (mcqs.length > 0) {
+                const mcq = mcqs[Math.floor(Math.random() * mcqs.length)];
+                const result = {
+                    type: 'mcq',
+                    question: mcq.question,
+                    options: shuffleArray(mcq.options),
+                    correctAnswer: mcq.answer,
+                    explanation: 'This question was generated from the provided text.'
+                };
+                console.log('MCQ generated from JS:', result);
+                return result;
+            }
+            
+            // Fallback: try local extraction
+            console.log('Trying local MCQ extraction...');
+            return generateMCQFromText(text);
+        }
+
+        // Extract noun phrases from the full text for use as distractors
+        function extractNounPhrasesFromText(text) {
+            const phrases = [];
+            const stopWords = new Set(['that', 'with', 'from', 'this', 'they', 'their', 'there', 'these', 'those',
+                'which', 'what', 'where', 'when', 'been', 'have', 'will', 'does', 'also', 'into', 'over',
+                'such', 'than', 'then', 'them', 'only', 'other', 'about', 'could', 'after', 'before',
+                'between', 'through', 'because', 'while', 'being', 'having', 'doing', 'each', 'every',
+                'either', 'neither', 'some', 'any', 'many', 'much', 'more', 'most', 'few', 'less',
+                'least', 'very', 'quite', 'just', 'rather', 'really', 'still', 'already', 'always',
+                'never', 'often', 'sometimes', 'usually']);
+            
+            // Extract capitalized words (potential proper nouns/entities)
+            const capWords = text.match(/\b[A-Z][a-z]{2,}\b/g) || [];
+            const skipCaps = ['The', 'This', 'That', 'These', 'Those', 'A', 'An', 'It', 'Its', 'In', 'On', 'At', 'By', 'For', 'To', 'And', 'But', 'Or', 'Not', 'As', 'If', 'So', 'Up'];
+            for (const w of capWords) {
+                if (!skipCaps.includes(w) && !phrases.includes(w)) {
+                    phrases.push(w);
+                }
+            }
+            
+            // Extract significant lowercase words
+            const words = text.toLowerCase().match(/\b[a-z]{4,}\b/g) || [];
+            for (const w of words) {
+                if (!stopWords.has(w) && !phrases.includes(w)) {
+                    phrases.push(w);
+                }
+            }
+            
+            return phrases;
+        }
+
+        // Extract all predicate-like phrases from sentences for use as distractors
+        function extractAllPredicates(sentences) {
+            const predicates = [];
+            const patterns = [
+                /(?:is|are|was|were)\s+(?:a|an|the)?\s*([^.!?]+)/i,
+                /(?:has|have|had)\s+([^.!?]+)/i,
+                /(?:is|are|was|were)\s+known\s+for\s+([^.!?]+)/i,
+                /(?:is|are|was|were)\s+(?:called|named)\s+([^.!?]+)/i,
+                /(?:contains)\s+([^.!?]+)/i
+            ];
+            
+            for (const sentence of sentences) {
+                for (const pattern of patterns) {
+                    const match = sentence.match(pattern);
+                    if (match && match[1]) {
+                        const pred = match[1].trim().replace(/[.,;:]$/, '');
+                        if (pred.length > 3 && pred.length < 80 && !predicates.includes(pred)) {
+                            predicates.push(pred);
+                        }
+                    }
+                }
+            }
+            return predicates;
+        }
+
+        // Generate near-miss distractors by modifying the correct answer
+        function generateNearMisses(correctAnswer) {
+            const misses = [];
+            const replacements = {
+                'largest': 'smallest', 'smallest': 'largest',
+                'hottest': 'coldest', 'coldest': 'hottest',
+                'closest': 'farthest', 'farthest': 'closest',
+                'fastest': 'slowest', 'slowest': 'fastest',
+                'first': 'last', 'last': 'first',
+                'highest': 'lowest', 'lowest': 'highest',
+                'oldest': 'newest', 'newest': 'oldest',
+                'only': 'one of many', 'unique': 'common',
+                'massive': 'tiny', 'tiny': 'massive',
+                'spectacular': 'ordinary', 'famous': 'unknown',
+                'protective': 'harmful', 'liquid': 'solid',
+                'solid': 'liquid', 'thick': 'thin', 'thin': 'thick',
+                'ice': 'rock', 'rock': 'ice'
+            };
+            
+            const lowerAnswer = correctAnswer.toLowerCase();
+            for (const [from, to] of Object.entries(replacements)) {
+                if (lowerAnswer.includes(from)) {
+                    const modified = correctAnswer.replace(new RegExp(from, 'gi'), to);
+                    if (modified !== correctAnswer) {
+                        misses.push(modified);
+                    }
+                }
+            }
+            
+            // For numeric answers, create variations
+            const numMatch = correctAnswer.match(/^(\d+(?:\.\d+)?)\s*(.*)$/);
+            if (numMatch) {
+                const num = parseFloat(numMatch[1]);
+                const unit = numMatch[2].trim();
+                const variations = [num + 1, num - 1, num * 2, Math.round(num / 2), num + 10, num - 10];
+                for (const v of variations) {
+                    if (v > 0) {
+                        const candidate = unit ? `${v} ${unit}` : `${v}`;
+                        if (candidate !== correctAnswer && !misses.includes(candidate)) {
+                            misses.push(candidate);
+                        }
+                    }
+                    if (misses.length >= 4) break;
+                }
+            }
+            
+            // Word manipulation - remove middle word
+            const words = correctAnswer.split(/\s+/);
+            if (words.length >= 3) {
+                const mid = Math.floor(words.length / 2);
+                const removed = [...words];
+                removed.splice(mid, 1);
+                misses.push(removed.join(' '));
+            }
+            
+            return misses;
+        }
+
+        // JavaScript MCQ generation from sentences - context-aware
+        function generateMCQFromSentencesJS(sentences) {
+            const results = [];
+            const usedSubjects = new Set();
+            
+            // Extract all context from the full text
+            const fullText = sentences.join(' ');
+            const allNouns = extractNounPhrasesFromText(fullText);
+            const allPredicates = extractAllPredicates(sentences);
+            
+            const maxQuestions = Math.min(sentences.length, 20);
+            
+            for (let i = 0; i < maxQuestions; i++) {
+                const sentence = sentences[i].trim();
+                if (sentence.length < 15) continue;
+                
+                let subject = "";
+                let description = "";
+                let questionText = "";
+                let questionType = "";
+                
+                // Try different extraction patterns
+                const patterns = [
+                    { regex: /The\s+(\w+(?:\s+\w+)?)\s+(?:is|was|are|were)\s+(?:a|an|the)?\s*([^.!?]+)/i, type: "the" },
+                    { regex: /(\w+(?:\s+\w+)?)\s+(?:is|was|are|were)\s+(?:a|an|the)?\s*([^.!?]+)/i, type: "simple" },
+                    { regex: /(\w+(?:\s+\w+)?)\s+(?:is|was|are|were)\s+known\s+for\s+([^.!?]+)/i, type: "known" },
+                    { regex: /(\w+(?:\s+\w+)?)\s+(?:has|have|had)\s+([^.!?]+)/i, type: "has" },
+                    { regex: /(\w+(?:\s+\w+)?)\s+(?:contains)\s+([^.!?]+)/i, type: "contains" },
+                    { regex: /(\w+(?:\s+\w+)?)\s+(?:is|are|was|were)\s+(?:called|named)\s+([^.!?]+)/i, type: "called" },
+                    { regex: /(\w+(?:\s+\w+)?),\s*(?:often\s+)?called\s+([^,]+),\s*([^.!?]+)/i, type: "alias" }
+                ];
+                
+                for (const pattern of patterns) {
+                    const match = sentence.match(pattern.regex);
+                    if (match && match[1] && match[2]) {
+                        subject = match[1].trim();
+                        description = pattern.type === "alias" ? `often called ${match[2].trim()}` : match[2].trim();
+                        
+                        if (subject.length < 3 || usedSubjects.has(subject.toLowerCase())) continue;
+                        
+                        switch (pattern.type) {
+                            case "the":
+                            case "simple":
+                                questionText = `What is true about ${subject}?`;
+                                break;
+                            case "known":
+                                questionText = `What is ${subject} known for?`;
+                                break;
+                            case "has":
+                                questionText = `What does ${subject} have?`;
+                                break;
+                            case "contains":
+                                questionText = `What does ${subject} contain?`;
+                                break;
+                            case "called":
+                                questionText = `What is ${subject} called?`;
+                                break;
+                            case "alias":
+                                questionText = `What is true about ${subject}?`;
+                                break;
+                        }
+                        
+                        questionType = pattern.type;
+                        if (questionText && description) break;
+                    }
+                }
+                
+                if (!subject || !description) continue;
+                if (description.length < 3 || description.length > 80) continue;
+                
+                usedSubjects.add(subject.toLowerCase());
+                const answer = description;
+                
+                // Build context-aware choices
+                const options = [answer];
+                
+                // Strategy 1: Use other predicates from the text as distractors
+                const otherPredicates = allPredicates
+                    .filter(p => p.toLowerCase() !== answer.toLowerCase() && p.length > 3)
+                    .sort(() => Math.random() - 0.5);
+                
+                for (const pred of otherPredicates) {
+                    if (options.length >= 4) break;
+                    if (!options.includes(pred)) {
+                        // Check it's not too similar to the correct answer
+                        const similarity = levenshteinSimilarity(pred.toLowerCase(), answer.toLowerCase());
+                        if (similarity < 0.6) {
+                            options.push(pred);
+                        }
+                    }
+                }
+                
+                // Strategy 2: Generate near-miss distractors
+                if (options.length < 4) {
+                    const nearMisses = generateNearMisses(answer).sort(() => Math.random() - 0.5);
+                    for (const miss of nearMisses) {
+                        if (options.length >= 4) break;
+                        if (!options.includes(miss)) {
+                            options.push(miss);
+                        }
+                    }
+                }
+                
+                // Strategy 3: Use nouns/phrases from the text as distractors
+                if (options.length < 4) {
+                    const shuffledNouns = allNouns.sort(() => Math.random() - 0.5);
+                    for (const noun of shuffledNouns) {
+                        if (options.length >= 4) break;
+                        if (!options.includes(noun) && noun.toLowerCase() !== answer.toLowerCase()) {
+                            options.push(noun);
+                        }
+                    }
+                }
+                
+                // Strategy 4: Context-based fillers (not generic!)
+                if (options.length < 4) {
+                    const contextFillers = [
+                        `A completely different property of ${subject}`,
+                        `Not mentioned in the context of ${subject}`,
+                        `Unrelated to ${subject}`,
+                        `A contradictory statement about ${subject}`
+                    ];
+                    for (const filler of contextFillers) {
+                        if (options.length >= 4) break;
+                        if (!options.includes(filler)) {
+                            options.push(filler);
+                        }
+                    }
+                }
+                
+                results.push({
+                    question: questionText,
+                    answer: answer,
+                    options: shuffleArray([...options.slice(0, 4)])
+                });
+            }
+            
+            return results;
+        }
+
+        // Simple similarity check using Levenshtein-like approach
+        function levenshteinSimilarity(a, b) {
+            if (a === b) return 1;
+            const lenA = a.length;
+            const lenB = b.length;
+            if (lenA === 0 || lenB === 0) return 0;
+            
+            let matches = 0;
+            const minLen = Math.min(lenA, lenB);
+            for (let i = 0; i < minLen; i++) {
+                if (a[i] === b[i]) matches++;
+            }
+            return matches / Math.max(lenA, lenB);
+        }
+
+        // Local MCQ extraction - tries to find question/choices patterns in text
+        function generateMCQFromText(fullText) {
+            // Try to find question marks followed by choices
+            const questionMatches = fullText.match(/[^.!?]*\?[^A-Da-d]*[A-D][\.\)][^\n]+/gi);
+            
+            if (questionMatches && questionMatches.length > 0) {
+                for (const match of questionMatches) {
+                    const lines = match.split(/\n/);
+                    let questionText = '';
+                    let choices = [];
+                    
+                    for (const line of lines) {
+                        const trimmed = line.trim();
+                        if (!trimmed) continue;
+                        
+                        if (trimmed.includes('?')) {
+                            questionText = trimmed;
+                        } else if (/^[A-Da-d][\.\)]/.test(trimmed)) {
+                            choices.push(trimmed.replace(/^[A-Da-d][\.\)]\s*/, ''));
+                        }
+                    }
+                    
+                    if (questionText && choices.length >= 2) {
+                        const correctAnswer = choices[0];
+                        return {
+                            type: 'mcq',
+                            question: questionText,
+                            options: shuffleArray(choices),
+                            correctAnswer: correctAnswer,
+                            explanation: 'This question was extracted from the text. Select the best answer.'
+                        };
+                    }
+                }
+            }
+
+            // Fallback: generate context-aware MCQ from the text content
+            const sentences = fullText.split(/[.!?]+/).filter(s => s.trim().length > 10);
+            const allNouns = extractNounPhrasesFromText(fullText);
+            
+            if (sentences.length > 0) {
+                // Pick a random sentence
+                const sentence = sentences[Math.floor(Math.random() * sentences.length)].trim();
+                const words = sentence.split(/\s+/);
+                
+                // Find a meaningful subject from the sentence
+                let subject = '';
+                let answer = '';
+                for (let i = 0; i < words.length; i++) {
+                    const clean = words[i].replace(/[^a-zA-Z]/, '');
+                    if (clean.length > 3 && clean[0] === clean[0].toUpperCase()) {
+                        subject = clean;
+                        answer = words.slice(i + 1, i + 5).join(' ').replace(/[.,;:!?]$/, '');
+                        break;
+                    }
+                }
+                
+                if (!subject) subject = words[0] || 'this topic';
+                if (!answer) answer = sentence;
+                
+                // Build distractors from the actual text content
+                const options = [answer];
+                const shuffledNouns = allNouns.filter(n => n.toLowerCase() !== answer.toLowerCase()).sort(() => Math.random() - 0.5);
+                for (const noun of shuffledNouns) {
+                    if (options.length >= 4) break;
+                    options.push(noun);
+                }
+                
+                // Fill remaining slots with contextual (not generic) distractors
+                const otherSentences = sentences.filter(s => s !== sentence);
+                for (const s of otherSentences) {
+                    if (options.length >= 4) break;
+                    const fragment = s.trim().split(/\s+/).slice(0, 4).join(' ');
+                    if (fragment.length > 5 && !options.includes(fragment)) {
+                        options.push(fragment);
+                    }
+                }
+                
+                return {
+                    type: 'mcq',
+                    question: `What is true about ${subject}?`,
+                    options: shuffleArray(options.slice(0, 4)),
+                    correctAnswer: answer,
+                    explanation: 'This question was generated from the provided text.'
+                };
+            }
+            
+            // Ultimate fallback with text-derived content
+            const keyTerms = extractNounPhrasesFromText(fullText).slice(0, 4);
+            if (keyTerms.length >= 2) {
+                return {
+                    type: 'mcq',
+                    question: 'Which of the following is mentioned in the text?',
+                    options: shuffleArray(keyTerms.slice(0, 4)),
+                    correctAnswer: keyTerms[0],
+                    explanation: 'This term appears in the provided text.'
+                };
+            }
+            
+            return {
+                type: 'mcq',
+                question: 'What is the main topic of the provided text?',
+                options: ['The content discussed in the text', 'An unrelated topic', 'A different concept', 'Cannot be determined'],
+                correctAnswer: 'The content discussed in the text',
+                explanation: 'Default fallback question.'
+            };
+        }
+
+        // True/False question generation logic
+        function generateTrueFalseQuestion(sentence) {
+            const isTrue = Math.random() > 0.4; // 60% true, 40% false
+
+            let questionText, correctAnswer;
+
+            if (isTrue) {
+                questionText = `True or False: ${sentence.trim()}.`;
+                correctAnswer = 'True';
+            } else {
+                // Create a false statement by modifying the original
+                const modifiedSentence = modifyStatement(sentence);
+                questionText = `True or False: ${modifiedSentence}.`;
+                correctAnswer = 'False';
+            }
+
+            return {
+                type: 'truefalse',
+                question: questionText,
+                options: ['True', 'False'],
+                correctAnswer: correctAnswer,
+                explanation: isTrue
+                    ? `This statement accurately reflects the information in the text.`
+                    : `This statement has been modified and does not accurately represent the original text.`
+            };
+        }
+
+        // Fill in the Blank question generation
+        function generateFillBlankQuestion(sentence, words) {
+            const wordsInSentence = sentence.split(' ').filter(word => word.length > 3);
+            const importantWords = wordsInSentence.filter(word =>
+                words.includes(word.toLowerCase()) ||
+                word.length > 6 ||
+                /\d/.test(word) // Include words with numbers
+            );
+
+            if (importantWords.length === 0) {
+                // Fallback to any word
+                const allWords = sentence.split(' ').filter(word => word.length > 2);
+                if (allWords.length === 0) return generateTrueFalseQuestion(sentence);
+                importantWords.push(allWords[Math.floor(Math.random() * allWords.length)]);
+            }
+
+            const blankWord = importantWords[Math.floor(Math.random() * importantWords.length)];
+            const questionText = sentence.replace(blankWord, '________');
+
+            return {
+                type: 'fillblank',
+                question: `Fill in the blank: ${questionText}.`,
+                correctAnswer: blankWord,
+                explanation: `The correct word "${blankWord}" fits the context and maintains the sentence's meaning.`
+            };
+        }
+
+        // Multiple Choice Question generation
+        function generateMCQQuestion(sentence, words, fullText) {
+            const concepts = extractKeyConcepts(fullText);
+            const questionTypes = [
+                { type: 'relationship', template: 'What is the relationship between {concept1} and {concept2}?' },
+                { type: 'application', template: 'How does {concept} relate to the main topic?' },
+                { type: 'analysis', template: 'Which of the following best describes {concept}?' },
+                { type: 'evaluation', template: 'Based on the text, what can be concluded about {concept}?' }
+            ];
+
+            const questionType = questionTypes[Math.floor(Math.random() * questionTypes.length)];
+            const concept1 = concepts[Math.floor(Math.random() * concepts.length)];
+            const concept2 = concepts[Math.floor(Math.random() * concepts.length)];
+
+            let questionText, correctAnswer, options;
+
+            switch (questionType.type) {
+                case 'relationship':
+                    questionText = questionType.template.replace('{concept1}', concept1).replace('{concept2}', concept2);
+                    correctAnswer = 'They are connected concepts';
+                    options = [
+                        'They are connected concepts',
+                        'They are completely unrelated',
+                        'One causes the other',
+                        'They are opposites'
+                    ];
+                    break;
+
+                case 'application':
+                    questionText = questionType.template.replace('{concept}', concept1);
+                    correctAnswer = 'It plays a significant role';
+                    options = [
+                        'It plays a significant role',
+                        'It has no importance',
+                        'It is mentioned briefly',
+                        'It contradicts the main idea'
+                    ];
+                    break;
+
+                case 'analysis':
+                    questionText = questionType.template.replace('{concept}', concept1);
+                    correctAnswer = 'A key element in the discussion';
+                    options = [
+                        'A key element in the discussion',
+                        'A minor detail',
+                        'An unrelated topic',
+                        'A controversial point'
+                    ];
+                    break;
+
+                case 'evaluation':
+                    questionText = questionType.template.replace('{concept}', concept1);
+                    correctAnswer = 'Further research is needed';
+                    options = [
+                        'Further research is needed',
+                        'The conclusion is definitive',
+                        'The topic is irrelevant',
+                        'More evidence contradicts this'
+                    ];
+                    break;
+            }
+
+            return {
+                type: 'mcq',
+                question: questionText,
+                options: shuffleArray([...options]),
+                correctAnswer: correctAnswer,
+                explanation: `This requires understanding the context and relationships presented in the text.`
+            };
+        }
+
+        // Extract key words from text
+        function extractKeyWords(text) {
+            const words = text.toLowerCase().split(/\W+/).filter(word =>
+                word.length > 3 &&
+                !['that', 'with', 'from', 'this', 'they', 'their', 'there', 'these', 'those', 'which', 'what', 'where', 'when', 'why', 'how'].includes(word)
+            );
+            return [...new Set(words)];
+        }
+
+        // Extract key concepts from text
+        function extractKeyConcepts(text) {
+            const sentences = text.split(/[.!?]+/);
+            const concepts = [];
+
+            sentences.forEach(sentence => {
+                const words = sentence.toLowerCase().match(/\b\w{5,}\b/g) || [];
+                concepts.push(...words.filter(word =>
+                    !['that', 'with', 'from', 'this', 'they', 'their', 'there', 'these', 'those', 'which', 'what', 'where', 'when', 'why', 'how'].includes(word)
+                ));
+            });
+
+            return [...new Set(concepts)].slice(0, 15);
+        }
+
+        // Helper function to modify statements for false questions
+        function modifyStatement(statement) {
+            const modifications = [
+                s => s.replace(/\b(is|are|was|were)\b/g, match => match === 'is' ? 'is not' : match === 'are' ? 'are not' : match === 'was' ? 'was not' : 'were not'),
+                s => s.replace(/\b(has|have|had)\b/g, 'does not have'),
+                s => s.replace(/\b(the|a)\b/, match => match === 'the' ? 'a' : 'the'),
+                s => s.replace(/\b(first|last)\b/, match => match === 'first' ? 'last' : 'first'),
+                s => s.replace(/\b(largest|smallest)\b/, match => match === 'largest' ? 'smallest' : 'largest'),
+                s => s.replace(/\b(closest|farthest)\b/, match => match === 'closest' ? 'farthest' : 'closest'),
+                s => s.replace(/\b(hottest|coldest)\b/, match => match === 'hottest' ? 'coldest' : 'hottest')
+            ];
+
+            const modification = modifications[Math.floor(Math.random() * modifications.length)];
+            return modification(statement);
+        }
+
+        // Shuffle array function
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Display quiz
+        function displayQuiz() {
+            const container = document.getElementById('questionsList');
+            container.innerHTML = '';
+
+            currentQuiz.forEach((question, index) => {
+                // Skip null or invalid questions
+                if (!question || !question.type) {
+                    console.warn('Skipping invalid question at index:', index);
+                    return;
+                }
+                
+                const questionCard = document.createElement('div');
+                questionCard.className = 'question-card fade-in';
+                questionCard.id = `question-${index}`;
+
+                let optionsHtml = '';
+
+                if (question.type === 'fillblank') {
+                    optionsHtml = `
+                        <input type="text" class="fill-blank" id="fillblank-${index}" placeholder="Type your answer here...">
+                        <button class="btn btn-primary" onclick="checkFillBlank(${index})" style="width: auto; margin-top: 10px;">Submit Answer</button>
+                    `;
+                } else {
+                    // truefalse or mcq
+                    optionsHtml = `
+                        <div class="answer-options">
+                            ${question.options.map((option, optIndex) => `
+                                <div class="option" onclick="selectAnswer(${index}, ${optIndex})">
+                                    <div class="option-letter">${String.fromCharCode(97 + optIndex)}</div>
+                                    <div>${option}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+
+                questionCard.innerHTML = `
+                    <div class="question-header">
+                        <span class="question-type">${question.type.toUpperCase()}</span>
+                    </div>
+                    <div class="question-text">${question.question}</div>
+                    ${optionsHtml}
+                    <div id="feedback-${index}" class="feedback" style="display: none;"></div>
+                `;
+
+                container.appendChild(questionCard);
+            });
+        }
+
+        // Answer selection for True/False and MCQ
+        function selectAnswer(questionIndex, optionIndex) {
+            const question = currentQuiz[questionIndex];
+            const options = document.querySelectorAll(`#question-${questionIndex} .option`);
+            const feedbackDiv = document.getElementById(`feedback-${questionIndex}`);
+
+            // Get all option texts
+            const allOptionTexts = Array.from(options).map(opt => opt.textContent.trim());
+            
+            // Mark selected option
+            options[optionIndex].classList.add('selected');
+
+            // Check answer - handle both shuffled display and original answer
+            const selectedAnswer = question.options[optionIndex];
+            let isCorrect = false;
+            
+            if (question.type === 'mcq') {
+                // For MCQ, check if selected matches either the shuffled options position or original correctAnswer
+                // The correct answer could be at any position due to shuffle
+                isCorrect = (selectedAnswer === question.correctAnswer);
+            } else {
+                isCorrect = (selectedAnswer === question.correctAnswer);
+            }
+
+            // Update user answers
+            userAnswers[questionIndex] = {
+                selected: selectedAnswer,
+                correct: isCorrect
+            };
+
+            // Show feedback
+            options[optionIndex].classList.add(isCorrect ? 'correct' : 'incorrect');
+
+            feedbackDiv.className = `feedback ${isCorrect ? 'correct' : 'incorrect'}`;
+            feedbackDiv.innerHTML = `
+                <strong>${isCorrect ? '✓ Correct!' : '✗ Incorrect'}</strong>
+                <div class="explanation">${question.explanation}</div>
+            `;
+            feedbackDiv.style.display = 'block';
+
+            // Lock all options after selection (prevent changing answer)
+            options.forEach(opt => {
+                opt.style.pointerEvents = 'none';
+                opt.style.opacity = opt.classList.contains('selected') ? '1' : '0.6';
+            });
+
+            // Mark question as answered
+            question.answered = true;
+
+            updateStats();
+        }
+
+        // Check fill-in-the-blank answer
+        function checkFillBlank(questionIndex) {
+            const question = currentQuiz[questionIndex];
+            const input = document.getElementById(`fillblank-${questionIndex}`);
+            const feedbackDiv = document.getElementById(`feedback-${questionIndex}`);
+            const submitBtn = input.nextElementSibling; // The submit button
+
+            const userInput = input.value.trim();
+            if (!userInput) {
+                alert('Please enter an answer before submitting.');
+                return;
+            }
+
+            // Check answer (case insensitive)
+            const isCorrect = userInput.toLowerCase() === question.correctAnswer.toLowerCase();
+
+            // Update user answers
+            userAnswers[questionIndex] = {
+                selected: userInput,
+                correct: isCorrect
+            };
+
+            // Lock input and button after submission (prevent changing answer)
+            input.disabled = true;
+            submitBtn.disabled = true;
+            submitBtn.textContent = isCorrect ? '✓ Correct!' : '✗ Submitted';
+            submitBtn.style.backgroundColor = isCorrect ? '#4CAF50' : '#f44336';
+
+            // Show feedback
+            feedbackDiv.className = `feedback ${isCorrect ? 'correct' : 'incorrect'}`;
+            feedbackDiv.innerHTML = `
+                <strong>${isCorrect ? '✓ Correct!' : '✗ Incorrect'}</strong>
+                ${!isCorrect ? `<br>The correct answer was: <strong>${question.correctAnswer}</strong>` : ''}
+                <div class="explanation">${question.explanation}</div>
+            `;
+            feedbackDiv.style.display = 'block';
+
+            // Mark question as answered
+            question.answered = true;
+
+            updateStats();
+        }
+
+        // Update statistics
+        function updateStats() {
+            quizStats.answered = userAnswers.filter(answer => answer !== null).length;
+            quizStats.correct = userAnswers.filter(answer => answer && answer.correct).length;
+
+            const progressPercent = (quizStats.answered / quizStats.total) * 100;
+            const scorePercent = quizStats.total > 0 ? Math.round((quizStats.correct / quizStats.total) * 100) : 0;
+
+            document.getElementById('progressFill').style.width = `${progressPercent}%`;
+            document.getElementById('answeredCount').textContent = quizStats.answered;
+            document.getElementById('correctCount').textContent = quizStats.correct;
+            document.getElementById('scorePercent').textContent = `${scorePercent}%`;
+
+            // Check if quiz is complete
+            if (quizStats.answered === quizStats.total) {
+                setTimeout(showResults, 1000);
+            }
+        }
+
+        // Show results
+        function showResults() {
+            document.getElementById('quizContainer').classList.add('hidden');
+            document.getElementById('resultsContainer').classList.remove('hidden');
+
+            const resultsDiv = document.getElementById('finalResults');
+            const scorePercent = Math.round((quizStats.correct / quizStats.total) * 100);
+
+            // 🔓 THEME UNLOCK LOGIC 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+if (scorePercent === 100 && quizStats.total >= 5) {
+    localStorage.setItem("themesUnlocked", "true");
+    alert("🎉 Congrats! You unlocked all themes!");
+} 
+else if (scorePercent === 100 && quizStats.total < 5) {
+    alert("⚠️ You got 100%, but you need at least 20 questions to unlock themes.");
+}
+
+            let performanceMessage = '';
+            if (scorePercent >= 90) performanceMessage = 'Outstanding! 🏆';
+            else if (scorePercent >= 80) performanceMessage = 'Excellent work! 🌟';
+            else if (scorePercent >= 70) performanceMessage = 'Good job! 👍';
+            else if (scorePercent >= 60) performanceMessage = 'Keep practicing! 📚';
+            else performanceMessage = 'Review the material and try again! 💪';
+
+            resultsDiv.innerHTML = `
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <h2 style="color: #4a5568; margin-bottom: 10px;">Quiz Complete!</h2>
+                    <div style="font-size: 4em; margin: 20px 0; color: #667eea;">${scorePercent}%</div>
+                    <p style="font-size: 1.2em; color: #718096;">${performanceMessage}</p>
+                </div>
+
+                <div class="stats">
+                    <h3>📊 Detailed Results</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value">${quizStats.correct}/${quizStats.total}</div>
+                            <div class="stat-label">Correct Answers</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${quizStats.total - quizStats.correct}</div>
+                            <div class="stat-label">Incorrect Answers</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${scorePercent}%</div>
+                            <div class="stat-label">Final Score</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <button class="btn btn-primary" onclick="resetQuiz()" style="margin-right: 10px;">
+                        🔄 Take Another Quiz
+                    </button>
+                </div>
+            `;
+        }
+
+        // Reset quiz
+        function resetQuiz() {
+            currentQuiz = [];
+            userAnswers = [];
+            quizStats = { total: 0, answered: 0, correct: 0 };
+
+            document.getElementById('welcomeMessage').classList.remove('hidden');
+            document.getElementById('quizContainer').classList.add('hidden');
+            document.getElementById('resultsContainer').classList.add('hidden');
+            document.getElementById('quizStats').style.display = 'none';
+
+            document.getElementById('fileInput').value = '';
+            document.getElementById('fileInfo').innerHTML = '';
+            document.getElementById('manualText').value = '';
+
+            uploadedText = '';
+            updateStats();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStats();
+            // Add sample text to manual input
+            document.getElementById('manualText').value = `The solar system consists of the Sun and eight planets. Mercury is the closest planet to the Sun, completing its orbit in just 88 Earth days. Venus is the hottest planet due to its thick atmosphere that traps heat through the greenhouse effect. Earth is the only planet known to support life, with liquid water and a protective atmosphere containing oxygen and nitrogen. Mars, often called the Red Planet, has the largest volcano in the solar system called Olympus Mons. Jupiter is the largest planet, featuring the Great Red Spot, which is a massive storm larger than Earth. Saturn is famous for its spectacular ring system made of ice and rock particles. Uranus and Neptune are ice giants with unique rotational characteristics and extreme weather conditions.`;
+        });
+    </script>
+
+    <!-- Back Button -->
+<a href="index.html" class="back-btn">← Back to Dashboard</a>
+
+<style>
+  .back-btn {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 18px;
+    background-color: #6a0dad; /* purple tone */
+    color: #fff;
+    text-decoration: none;
+    border-radius: 6px;
+    font-family: 'Segoe UI', sans-serif;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+
+  .back-btn:hover {
+    background-color: #4b1463; /* darker purple */
+    transform: translateY(-2px); /* subtle lift */
+  }
+</style>
+</body>
+</html>

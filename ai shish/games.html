@@ -1,0 +1,2220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Games - TrackNstudy</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap');
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 50%, #e8f5e8 100%);
+            margin: 0;
+            padding: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(255,255,255,0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .game-section {
+            max-width: 950px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            text-align: center;
+            color: #5c6bc0;
+            margin-bottom: 40px;
+            font-size: 2.5em;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .category-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .category-buttons button {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #81c784 0%, #4db6ac 100%);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            font-family: 'Nunito', sans-serif;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .category-buttons button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .category-buttons button:hover::before {
+            left: 100%;
+        }
+
+        .category-buttons button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(76, 175, 80, 0.4);
+        }
+        
+        .category-buttons button:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+            transform: none;
+        }
+        
+        .category-buttons button:disabled:hover {
+            transform: none;
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+        }
+
+        .game-module {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            display: none;
+        }
+
+        .game-module:not(.hidden) {
+            opacity: 1;
+            transform: translateY(0);
+            display: block;
+        }
+
+        .game-module h2 {
+            text-align: center;
+            color: #3949ab;
+            margin-bottom: 30px;
+            font-size: 2em;
+            font-weight: 600;
+        }
+
+        .timers {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+
+        .timers p {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+            color: #424242;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #64b5f6 0%, #ba68c8 100%);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Nunito', sans-serif;
+            margin: 15px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 6px 20px rgba(100, 181, 246, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.4s;
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(100, 181, 246, 0.4);
+        }
+
+        #play-btn, #mute-btn {
+            margin-bottom: 20px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #ff5722 0%, #e64a19 100%);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Nunito', sans-serif;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 6px 20px rgba(255, 87, 34, 0.3);
+        }
+
+        #play-btn:hover, #mute-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 87, 34, 0.4);
+        }
+        .chess-board {
+            display: grid;
+            grid-template-columns: repeat(8, 65px);
+            grid-template-rows: repeat(8, 65px);
+            border: 4px solid rgba(66, 66, 66, 0.3);
+            width: fit-content;
+            margin: 30px auto;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        .chess-square {
+            width: 65px;
+            height: 65px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 42px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .chess-square:hover {
+            background: rgba(100, 181, 246, 0.2) !important;
+            transform: scale(1.05);
+        }
+
+        .white-square {
+            background: linear-gradient(135deg, #f5f5f5 0%, #e8eaf6 100%);
+        }
+
+        .black-square {
+            background: linear-gradient(135deg, #90caf9 0%, #64b5f6 100%);
+        }
+
+        .selected {
+            background: linear-gradient(135deg, #ffb74d 0%, #ff9800 100%) !important;
+            box-shadow: inset 0 0 20px rgba(255, 152, 0, 0.3);
+            transform: scale(1.08);
+        }
+
+        .possible-move {
+            background: linear-gradient(135deg, #81c784 0%, #4caf50 100%) !important;
+            box-shadow: inset 0 0 15px rgba(76, 175, 80, 0.2);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: inset 0 0 15px rgba(76, 175, 80, 0.2); }
+            50% { box-shadow: inset 0 0 25px rgba(76, 175, 80, 0.4); }
+            100% { box-shadow: inset 0 0 15px rgba(76, 175, 80, 0.2); }
+        }
+        .sudoku-grid {
+            display: grid;
+            grid-template-columns: repeat(9, 45px);
+            grid-template-rows: repeat(9, 45px);
+            gap: 1px;
+            border: 3px solid #333;
+            width: fit-content;
+            margin: 20px auto;
+            background: #333;
+        }
+        .sudoku-cell {
+            width: 45px;
+            height: 45px;
+            background: white;
+            border: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .sudoku-cell input {
+            width: 100%;
+            height: 100%;
+            border: none;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .sudoku-cell input:disabled {
+            background: #e0e0e0;
+            color: #333;
+            cursor: not-allowed;
+        }
+        .sudoku-cell input:not(:disabled) {
+            background: white;
+            color: #333;
+        }
+        .sudoku-cell.conflict {
+            background: rgba(255, 0, 0, 0.3) !important;
+        }
+        .sudoku-cell.valid {
+            background: rgba(0, 255, 0, 0.3) !important;
+        }
+        .sudoku-cell.correct {
+            background: rgba(0, 255, 0, 0.5) !important;
+            border: 2px solid green;
+        }
+        .sudoku-cell.incorrect {
+            background: rgba(255, 0, 0, 0.5) !important;
+            border: 2px solid red;
+        }
+        .sudoku-cell.fixed {
+            background: #e0e0e0;
+        }
+        .word-list {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 20px;
+            font-weight: 600;
+            color: #424242;
+        }
+
+        .word-list span {
+            margin: 0 8px;
+            padding: 8px 15px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 20px;
+            border: 2px solid rgba(66, 66, 66, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .word-list .found {
+            background: linear-gradient(135deg, #81c784 0%, #4caf50 100%);
+            color: white;
+            text-decoration: none;
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+        .word-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 42px);
+            grid-template-rows: repeat(10, 42px);
+            gap: 3px;
+            width: fit-content;
+            margin: 30px auto;
+            font-family: 'Nunito', sans-serif;
+            font-size: 20px;
+            font-weight: 600;
+            border-radius: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .word-cell {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border: 2px solid rgba(66, 66, 66, 0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            color: #424242;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .word-cell:hover {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .word-cell.selected {
+            background: linear-gradient(135deg, #ffb74d 0%, #ff9800 100%);
+            color: white;
+            transform: scale(1.08);
+            box-shadow: 0 4px 15px rgba(255, 152, 0, 0.4);
+        }
+
+        .word-cell.found {
+            background: linear-gradient(135deg, #81c784 0%, #4caf50 100%);
+            color: white;
+            font-weight: 700;
+            transform: scale(1.02);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+            animation: foundGlow 0.6s ease-out;
+        }
+
+        @keyframes foundGlow {
+            0% { box-shadow: 0 0 0 rgba(76, 175, 80, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(76, 175, 80, 0.6); }
+            100% { box-shadow: 0 0 15px rgba(76, 175, 80, 0.3); }
+        }
+
+        .word-cell.incorrect-selection {
+            background: linear-gradient(135deg, #ef5350 0%, #f44336 100%);
+            color: white;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-3px); }
+            75% { transform: translateX(3px); }
+        }
+        .feedback {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: 600;
+            min-height: 40px;
+            padding: 15px 25px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        .feedback.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .correct {
+            color: #2e7d32;
+            background: linear-gradient(135deg, rgba(129, 199, 132, 0.2) 0%, rgba(76, 175, 80, 0.1) 100%);
+            border-left: 4px solid #4caf50;
+        }
+
+        .incorrect {
+            color: #c62828;
+            background: linear-gradient(135deg, rgba(239, 83, 80, 0.2) 0%, rgba(244, 67, 54, 0.1) 100%);
+            border-left: 4px solid #f44336;
+        }
+
+        .check-message {
+            color: #1565c0;
+            background: linear-gradient(135deg, rgba(100, 181, 246, 0.2) 0%, rgba(33, 150, 243, 0.1) 100%);
+            border-left: 4px solid #2196f3;
+        }
+
+        .checkmate-message {
+            color: #f57c00;
+            background: linear-gradient(135deg, rgba(255, 183, 77, 0.2) 0%, rgba(255, 152, 0, 0.1) 100%);
+            border-left: 4px solid #ff9800;
+            font-size: 22px;
+            font-weight: 700;
+        }
+        @media (max-width: 768px) {
+            .game-section {
+                padding: 20px;
+            }
+            .chess-board {
+                grid-template-columns: repeat(8, 40px);
+                grid-template-rows: repeat(8, 40px);
+            }
+            .chess-square {
+                width: 40px;
+                height: 40px;
+                font-size: 25px;
+            }
+            .sudoku-grid {
+                grid-template-columns: repeat(9, 35px);
+                grid-template-rows: repeat(9, 35px);
+            }
+            .sudoku-cell {
+                width: 35px;
+                height: 35px;
+            }
+            .sudoku-cell input {
+                font-size: 16px;
+            }
+            .word-grid {
+                grid-template-columns: repeat(10, 28px);
+                grid-template-rows: repeat(10, 28px);
+            }
+            .word-cell {
+                width: 28px;
+                height: 28px;
+                font-size: 14px;
+            }
+        }
+
+
+
+
+  .back-btn {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 18px;
+    background-color: #6a0dad; /* purple tone */
+    color: #fff;
+    text-decoration: none;
+    border-radius: 6px;
+    font-family: 'Segoe UI', sans-serif;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+
+  .back-btn:hover {
+    background-color: #4b1463; /* darker purple on hover */
+    transform: translateY(-2px); /* subtle lift effect */
+  }
+
+    </style>
+</head>
+<body>
+
+<audio id="bg-music" loop>
+  <source src="../bgmusic.mp3" type="audio/mpeg">
+  Your browser does not support the audio element.
+</audio>
+
+    <div class="game-section">
+        <h1>Feeling bored? Go ahead, play a game.</h1>
+        <button id="play-btn">Play Music</button>
+        <button id="mute-btn">Mute Music</button>
+        <!-- Back Button -->
+<a href="../index.html" class="back-btn">← Back to Dashboard</a>
+
+
+        <div class="category-buttons">
+            <button id="chessBtn">Chess</button>
+<button id="sudokuBtn">Sudoku</button>
+<button id="puzzleBtn">Puzzle</button>
+        </div>
+        <div id="chess-module" class="game-module hidden">
+            <h2>Chess</h2>
+            <p>Current Player: <span id="current-player">White</span></p>
+            <div class="timers">
+                <p>White Timer: <span id="white-timer">05:00</span></p>
+                <p>Black Timer: <span id="black-timer">05:00</span></p>
+            </div>
+            <button id="start-chess">Start Game</button>
+            <button id="reset-chess">Reset Game</button>
+            <div id="chess-status" class="feedback"></div>
+            <div id="chess-board" class="chess-board"></div>
+        </div>
+        <div id="sudoku-module" class="game-module hidden">
+            <h2>Sudoku</h2>
+            <div id="sudoku-grid" class="sudoku-grid"></div>
+            <button id="submit-sudoku">Submit</button>
+            <button id="show-answer-sudoku">Show Answer</button>
+            <div id="sudoku-feedback" class="feedback"></div>
+        </div>
+        <div id="puzzle-module" class="game-module hidden">
+            <h2>Word Search</h2>
+            <div id="word-list" class="word-list"></div>
+            <div id="word-grid" class="word-grid"></div>
+            <button id="reset-puzzle">Reset Puzzle</button>
+            <button id="next-puzzle">Next Puzzle</button>
+            <div id="puzzle-feedback" class="feedback"></div>
+        </div>
+    </div>
+    <script>
+        // Helper function to normalize touch/mouse coordinates
+        function getCoordinates(e) {
+            if (e.touches && e.touches.length > 0) {
+                return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            } else if (e.changedTouches && e.changedTouches.length > 0) {
+                return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+            } else {
+                return { x: e.clientX, y: e.clientY };
+            }
+        }
+
+        // Game switching logic - fix button IDs
+        document.getElementById('chessBtn').addEventListener('click', () => showGame('chess'));
+        document.getElementById('sudokuBtn').addEventListener('click', function() {
+            if (this.dataset.unlocked === 'true') {
+                showGame('sudoku');
+            } else {
+                const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+                const completedTasks = tasks.filter(t => t.completed).length;
+                const needed = 10 - completedTasks;
+                alert('🔒 Sudoku is locked!\n\nYou need to complete ' + needed + ' more task(s) to unlock this game.\n\nCompleted tasks: ' + completedTasks + '/10');
+            }
+        });
+        document.getElementById('puzzleBtn').addEventListener('click', function() {
+            if (this.dataset.unlocked === 'true') {
+                showGame('puzzle');
+            } else {
+                const assignments = JSON.parse(localStorage.getItem('assignments')) || [];
+                const completedAssignments = assignments.filter(a => a.completed).length;
+                const needed = 5 - completedAssignments;
+                alert('🔒 Puzzle is locked!\n\nYou need to complete ' + needed + ' more assignment(s) to unlock this game.\n\nCompleted assignments: ' + completedAssignments + '/5');
+            }
+        });
+
+        function showGame(game) {
+            document.querySelectorAll('.game-module').forEach(module => {
+                module.classList.add('hidden');
+            });
+            document.getElementById(game + '-module').classList.remove('hidden');
+            // Smooth transition with timeout
+            setTimeout(() => {
+                if (game === 'chess') {
+                    initChess();
+                } else if (game === 'sudoku') {
+                    initSudoku();
+                } else if (game === 'puzzle') {
+                    initPuzzle();
+                }
+            }, 500); // Match transition duration
+        }
+        // Game switching ensures only one module is visible at a time with smooth transitions
+
+        // Chess Logic
+        let chessBoard = [
+            ['♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜'],
+            ['♟', '♟', '♟', '♟', '♟', '♟', '♟', '♟'],
+            ['', '', '', '', '', '', '', ''],
+            ['', '', '', '', '', '', '', ''],
+            ['', '', '', '', '', '', '', ''],
+            ['', '', '', '', '', '', '', ''],
+            ['♙', '♙', '♙', '♙', '♙', '♙', '♙', '♙'],
+            ['♖', '♘', '♗', '♕', '♔', '♗', '♘', '♖']
+        ];
+        let currentPlayer = 'white';
+        let selectedSquare = null;
+        let whiteTime = 300; // 5 minutes
+        let blackTime = 300;
+        let timerInterval;
+        let gameStarted = false;
+        let gameEnded = false;
+        let checkStatus = false;
+        let pawnFirstMoves = new Set(); // Track pawns that haven't moved yet
+
+        function initChess() {
+            renderChessBoard();
+            // Timers start only when Start Game is clicked
+        }
+
+        // Chess drag state
+        let chessDragState = {
+            isDragging: false,
+            piece: null,
+            startRow: null,
+            startCol: null,
+            originalPiece: null,
+            ghostElement: null
+        };
+
+        function renderChessBoard() {
+            const board = document.getElementById('chess-board');
+            board.innerHTML = '';
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    const square = document.createElement('div');
+                    square.className = 'chess-square ' + ((row + col) % 2 === 0 ? 'white-square' : 'black-square');
+                    square.textContent = chessBoard[row][col];
+                    square.dataset.row = row;
+                    square.dataset.col = col;
+                    square.addEventListener('click', () => selectSquare(row, col));
+                    
+                    // Add touch event listeners for mobile drag
+                    square.addEventListener('touchstart', (e) => handleChessTouchStart(e, row, col), { passive: false });
+                    square.addEventListener('touchmove', handleChessTouchMove, { passive: false });
+                    square.addEventListener('touchend', handleChessTouchEnd, { passive: false });
+                    
+                    board.appendChild(square);
+                }
+            }
+        }
+
+        function handleChessTouchStart(e, row, col) {
+            if (!gameStarted || gameEnded) return;
+            if (!chessBoard[row][col] || !isPieceOfCurrentPlayer(row, col)) return;
+            
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const coords = getCoordinates(e);
+            
+            chessDragState = {
+                isDragging: true,
+                piece: chessBoard[row][col],
+                startRow: row,
+                startCol: col,
+                originalPiece: chessBoard[row][col],
+                ghostElement: null
+            };
+            
+            // Create ghost element for visual feedback
+            const ghost = document.createElement('div');
+            ghost.textContent = chessBoard[row][col];
+            ghost.style.cssText = `
+                position: fixed;
+                font-size: 42px;
+                pointer-events: none;
+                z-index: 1000;
+                left: ${coords.x - 20}px;
+                top: ${coords.y - 20}px;
+                opacity: 0.8;
+            `;
+            document.body.appendChild(ghost);
+            chessDragState.ghostElement = ghost;
+            
+            // Highlight the source square
+            const sourceSquare = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+            if (sourceSquare) sourceSquare.classList.add('selected');
+        }
+
+        function handleChessTouchMove(e) {
+            if (!chessDragState.isDragging) return;
+            
+            e.preventDefault();
+            
+            const coords = getCoordinates(e);
+            
+            if (chessDragState.ghostElement) {
+                chessDragState.ghostElement.style.left = (coords.x - 20) + 'px';
+                chessDragState.ghostElement.style.top = (coords.y - 20) + 'px';
+            }
+            
+            // Highlight potential drop target
+            const elementsUnderTouch = document.elementsFromPoint(coords.x, coords.y);
+            const targetSquare = elementsUnderTouch.find(el => 
+                el.classList && el.classList.contains('chess-square')
+            );
+            
+            // Clear previous highlights
+            document.querySelectorAll('.chess-square').forEach(sq => {
+                if (!sq.classList.contains('selected')) {
+                    sq.classList.remove('possible-move');
+                }
+            });
+            
+            if (targetSquare) {
+                const targetRow = parseInt(targetSquare.dataset.row);
+                const targetCol = parseInt(targetSquare.dataset.col);
+                
+                if (isValidMove(chessDragState.startRow, chessDragState.startCol, targetRow, targetCol)) {
+                    targetSquare.classList.add('possible-move');
+                }
+            }
+        }
+
+        function handleChessTouchEnd(e) {
+            if (!chessDragState.isDragging) return;
+            
+            e.preventDefault();
+            
+            // Clean up ghost element
+            if (chessDragState.ghostElement) {
+                chessDragState.ghostElement.remove();
+            }
+            
+            // Get final position
+            const coords = e.changedTouches ? 
+                { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY } : 
+                { x: e.clientX, y: e.clientY };
+            
+            const elementsUnderTouch = document.elementsFromPoint(coords.x, coords.y);
+            const targetSquare = elementsUnderTouch.find(el => 
+                el.classList && el.classList.contains('chess-square')
+            );
+            
+            if (targetSquare) {
+                const targetRow = parseInt(targetSquare.dataset.row);
+                const targetCol = parseInt(targetSquare.dataset.col);
+                
+                // Check if move is valid
+                if (isValidMove(chessDragState.startRow, chessDragState.startCol, targetRow, targetCol)) {
+                    // Check if move would put own king in check
+                    const originalPiece = chessBoard[targetRow][targetCol];
+                    const originalSelected = chessBoard[chessDragState.startRow][chessDragState.startCol];
+                    chessBoard[targetRow][targetCol] = chessBoard[chessDragState.startRow][chessDragState.startCol];
+                    chessBoard[chessDragState.startRow][chessDragState.startCol] = '';
+                    const kingInCheck = isKingInCheck(currentPlayer);
+                    // Revert move
+                    chessBoard[chessDragState.startRow][chessDragState.startCol] = originalSelected;
+                    chessBoard[targetRow][targetCol] = originalPiece;
+
+                    if (!kingInCheck) {
+                        movePiece(chessDragState.startRow, chessDragState.startCol, targetRow, targetCol);
+                        if (chessBoard[targetRow][targetCol] === '♟' || chessBoard[targetRow][targetCol] === '♙') {
+                            pawnFirstMoves.add(`${targetRow},${targetCol}`);
+                        }
+                        switchPlayer();
+                        checkForCheck();
+                        checkForCheckmate();
+                    } else {
+                        document.getElementById('chess-status').textContent = 'Illegal move – King would be in check!';
+                        document.getElementById('chess-status').className = 'feedback incorrect show';
+                        setTimeout(() => {
+                            if (!checkStatus) document.getElementById('chess-status').textContent = '';
+                        }, 2000);
+                        // Clear selection
+                        const selectedElement = document.querySelector(`[data-row="${chessDragState.startRow}"][data-col="${chessDragState.startCol}"]`);
+                        if (selectedElement) selectedElement.classList.remove('selected');
+                    }
+                }
+            }
+            
+            // Reset drag state
+            chessDragState = {
+                isDragging: false,
+                piece: null,
+                startRow: null,
+                startCol: null,
+                originalPiece: null,
+                ghostElement: null
+            };
+            
+            // Clear all highlights
+            document.querySelectorAll('.chess-square').forEach(sq => {
+                sq.classList.remove('selected');
+                sq.classList.remove('possible-move');
+            });
+        }
+
+        function selectSquare(row, col) {
+            if (!gameStarted || gameEnded) return;
+            const square = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+            if (selectedSquare) {
+                const [selectedRow, selectedCol] = selectedSquare;
+                if (selectedRow === row && selectedCol === col) {
+                    // Deselect
+                    square.classList.remove('selected');
+                    clearPossibleMoves();
+                    selectedSquare = null;
+                    return;
+                }
+                // Try to move
+                if (isValidMove(selectedRow, selectedCol, row, col)) {
+                    // Check if move would put own king in check
+                    const originalPiece = chessBoard[row][col];
+                    const originalSelected = chessBoard[selectedRow][selectedCol];
+                    chessBoard[row][col] = chessBoard[selectedRow][selectedCol];
+                    chessBoard[selectedRow][selectedCol] = '';
+                    const kingInCheck = isKingInCheck(currentPlayer);
+                    // Revert move
+                    chessBoard[selectedRow][selectedCol] = originalSelected;
+                    chessBoard[row][col] = originalPiece;
+
+                    if (kingInCheck) {
+                        document.getElementById('chess-status').textContent = 'Illegal move – King would be in check!';
+                        document.getElementById('chess-status').className = 'feedback incorrect show';
+                        setTimeout(() => {
+                            if (!checkStatus) document.getElementById('chess-status').textContent = '';
+                        }, 2000);
+                        // Clear selection and highlights to allow retrying
+                        const selectedElement = document.querySelector(`[data-row="${selectedRow}"][data-col="${selectedCol}"]`);
+                        if (selectedElement) {
+                            selectedElement.classList.remove('selected');
+                        }
+                        clearPossibleMoves();
+                        selectedSquare = null;
+                        return;
+                    }
+
+                    movePiece(selectedRow, selectedCol, row, col);
+                    // Track pawn first moves
+                    if (chessBoard[row][col] === '♟' || chessBoard[row][col] === '♙') {
+                        pawnFirstMoves.add(`${row},${col}`);
+                    }
+                    switchPlayer();
+                    checkForCheck();
+                    checkForCheckmate();
+                } else {
+                    // Invalid move - show feedback but don't freeze
+                    document.getElementById('chess-status').textContent = 'Invalid move!';
+                    document.getElementById('chess-status').className = 'feedback incorrect show';
+                    setTimeout(() => {
+                        if (!checkStatus) document.getElementById('chess-status').textContent = '';
+                    }, 2000);
+                    // Clear selection and highlights to allow retrying
+                    const selectedElement = document.querySelector(`[data-row="${selectedRow}"][data-col="${selectedCol}"]`);
+                    if (selectedElement) {
+                        selectedElement.classList.remove('selected');
+                    }
+                    clearPossibleMoves();
+                    selectedSquare = null;
+                    return;
+                }
+                document.querySelector(`[data-row="${selectedRow}"][data-col="${selectedCol}"]`).classList.remove('selected');
+                clearPossibleMoves();
+                selectedSquare = null;
+            } else {
+                // Select piece
+                if (chessBoard[row][col] && isPieceOfCurrentPlayer(row, col)) {
+                    selectedSquare = [row, col];
+                    square.classList.add('selected');
+                    showPossibleMoves(row, col);
+                }
+            }
+        }
+
+        function isPieceOfCurrentPlayer(row, col) {
+            const piece = chessBoard[row][col];
+            if (currentPlayer === 'white') {
+                return piece && piece.charCodeAt(0) >= 9812 && piece.charCodeAt(0) <= 9817; // White pieces
+            } else {
+                return piece && piece.charCodeAt(0) >= 9818 && piece.charCodeAt(0) <= 9823; // Black pieces
+            }
+        }
+
+        function isValidMove(fromRow, fromCol, toRow, toCol) {
+            const piece = chessBoard[fromRow][fromCol];
+            const target = chessBoard[toRow][toCol];
+            const isWhite = currentPlayer === 'white';
+            const pawnKey = `${fromRow},${fromCol}`;
+
+            // Can't capture own piece
+            if (target && isPieceOfCurrentPlayer(toRow, toCol)) return false;
+
+            // Pawn movement logic
+            if (piece === '♟' || piece === '♙') {
+                const direction = piece === '♟' ? 1 : -1; // Black pawns move down (positive row), white pawns move up (negative row)
+                const startRow = piece === '♟' ? 1 : 6; // Black pawns start at row 1, white at row 6
+
+                // Forward movement
+                if (fromCol === toCol) {
+                    // Must be empty square
+                    if (target) return false;
+
+                    // One square forward
+                    if (toRow === fromRow + direction) return true;
+
+                    // Two squares forward on first move
+                    if (fromRow === startRow && toRow === fromRow + 2 * direction && !pawnFirstMoves.has(pawnKey)) {
+                        // Check if path is clear
+                        const middleRow = fromRow + direction;
+                        if (!chessBoard[middleRow][fromCol]) return true;
+                    }
+                }
+                // Diagonal capture
+                else if (Math.abs(toCol - fromCol) === 1 && toRow === fromRow + direction) {
+                    // Must be enemy piece to capture
+                    return target && !isPieceOfCurrentPlayer(toRow, toCol);
+                }
+
+                return false; // No backward or sideways movement
+            }
+
+            // King movement - basic adjacent squares
+            if (piece === '♚' || piece === '♔') {
+                const rowDiff = Math.abs(toRow - fromRow);
+                const colDiff = Math.abs(toCol - fromCol);
+                return rowDiff <= 1 && colDiff <= 1 && !(rowDiff === 0 && colDiff === 0);
+            }
+
+            // Knight movement - L-shape
+            if (piece === '♞' || piece === '♘') {
+                const rowDiff = Math.abs(toRow - fromRow);
+                const colDiff = Math.abs(toCol - fromCol);
+                return (rowDiff === 2 && colDiff === 1) || (rowDiff === 1 && colDiff === 2);
+            }
+
+            // For other pieces, allow any move (simplified - we'll rely on king safety check)
+            return true;
+        }
+
+        function movePiece(fromRow, fromCol, toRow, toCol) {
+            chessBoard[toRow][toCol] = chessBoard[fromRow][fromCol];
+            chessBoard[fromRow][fromCol] = '';
+            renderChessBoard();
+        }
+
+        function isKingInCheck(player) {
+            const king = player === 'white' ? '♔' : '♚';
+            let kingPos = null;
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    if (chessBoard[row][col] === king) {
+                        kingPos = [row, col];
+                        break;
+                    }
+                }
+                if (kingPos) break;
+            }
+            if (!kingPos) return false;
+            return isSquareUnderAttack(kingPos[0], kingPos[1], player === 'white' ? 'black' : 'white');
+        }
+
+        function checkForCheck() {
+            const opponent = currentPlayer === 'white' ? 'black' : 'white';
+            checkStatus = isKingInCheck(opponent);
+            if (checkStatus) {
+                document.getElementById('chess-status').textContent = 'Check!';
+                document.getElementById('chess-status').className = 'feedback check-message show';
+                // Highlight opponent's king
+                const king = opponent === 'white' ? '♔' : '♚';
+                for (let row = 0; row < 8; row++) {
+                    for (let col = 0; col < 8; col++) {
+                        if (chessBoard[row][col] === king) {
+                            const kingSquare = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                            kingSquare.style.background = 'rgba(255, 0, 0, 0.5)';
+                            break;
+                        }
+                    }
+                }
+            } else {
+                document.getElementById('chess-status').textContent = '';
+                // Clear king highlight
+                document.querySelectorAll('.chess-square').forEach(square => {
+                    square.style.background = '';
+                });
+            }
+        }
+
+        function isSquareUnderAttack(row, col, attackerColor) {
+            // Check pawn attacks
+            const pawnDirection = attackerColor === 'white' ? -1 : 1; // white pawns attack up (negative row), black down (positive)
+            const pawnRow = row + pawnDirection;
+            if (pawnRow >= 0 && pawnRow < 8) {
+                for (const dc of [-1, 1]) {
+                    const pawnCol = col + dc;
+                    if (pawnCol >= 0 && pawnCol < 8) {
+                        const piece = chessBoard[pawnRow][pawnCol];
+                        if (piece === (attackerColor === 'white' ? '♙' : '♟')) {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            // Check knight attacks
+            const knightMoves = [
+                [-2, -1], [-2, 1], [-1, -2], [-1, 2],
+                [1, -2], [1, 2], [2, -1], [2, 1]
+            ];
+            for (const [dr, dc] of knightMoves) {
+                const nr = row + dr;
+                const nc = col + dc;
+                if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
+                    const piece = chessBoard[nr][nc];
+                    if (piece === (attackerColor === 'white' ? '♘' : '♞')) {
+                        return true;
+                    }
+                }
+            }
+
+            // Check bishop/queen diagonals
+            const bishopDirections = [[-1, -1], [-1, 1], [1, -1], [1, 1]];
+            for (const [dr, dc] of bishopDirections) {
+                let r = row + dr;
+                let c = col + dc;
+                while (r >= 0 && r < 8 && c >= 0 && c < 8) {
+                    const piece = chessBoard[r][c];
+                    if (piece) {
+                        if ((piece === (attackerColor === 'white' ? '♗' : '♝')) || (piece === (attackerColor === 'white' ? '♕' : '♛'))) {
+                            return true;
+                        }
+                        break; // blocked
+                    }
+                    r += dr;
+                    c += dc;
+                }
+            }
+
+            // Check rook/queen ranks and files
+            const rookDirections = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+            for (const [dr, dc] of rookDirections) {
+                let r = row + dr;
+                let c = col + dc;
+                while (r >= 0 && r < 8 && c >= 0 && c < 8) {
+                    const piece = chessBoard[r][c];
+                    if (piece) {
+                        if ((piece === (attackerColor === 'white' ? '♖' : '♜')) || (piece === (attackerColor === 'white' ? '♕' : '♛'))) {
+                            return true;
+                        }
+                        break;
+                    }
+                    r += dr;
+                    c += dc;
+                }
+            }
+
+            // Check king attacks (adjacent)
+            const kingDirections = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
+            for (const [dr, dc] of kingDirections) {
+                const nr = row + dr;
+                const nc = col + dc;
+                if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
+                    const piece = chessBoard[nr][nc];
+                    if (piece === (attackerColor === 'white' ? '♔' : '♚')) {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        function checkForCheckmate() {
+            if (!checkStatus) return;
+
+            // Check if the opponent (whose king is in check) has any legal moves
+            const opponent = currentPlayer === 'white' ? 'black' : 'white';
+
+            // Check if opponent's king has any legal moves
+            const king = opponent === 'white' ? '♔' : '♚';
+            let kingPos = null;
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    if (chessBoard[row][col] === king) {
+                        kingPos = [row, col];
+                        break;
+                    }
+                }
+                if (kingPos) break;
+            }
+            if (!kingPos) return;
+
+            // Check if king can move to any adjacent square
+            const directions = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
+            let canMove = false;
+            for (const [dr, dc] of directions) {
+                const newRow = kingPos[0] + dr;
+                const newCol = kingPos[1] + dc;
+                if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
+                    const target = chessBoard[newRow][newCol];
+                    if (!target || !isPieceOfOpponent(newRow, newCol, opponent)) {
+                        // Temporarily move king
+                        const original = chessBoard[newRow][newCol];
+                        chessBoard[newRow][newCol] = king;
+                        chessBoard[kingPos[0]][kingPos[1]] = '';
+                        if (!isSquareUnderAttack(newRow, newCol, currentPlayer)) {
+                            canMove = true;
+                        }
+                        // Revert
+                        chessBoard[kingPos[0]][kingPos[1]] = king;
+                        chessBoard[newRow][newCol] = original;
+                    }
+                }
+            }
+
+            // Check if any other piece of the opponent can block or capture the threat
+            let canBlock = false;
+            for (let row = 0; row < 8 && !canBlock; row++) {
+                for (let col = 0; col < 8 && !canBlock; col++) {
+                    if (chessBoard[row][col] && isPieceOfOpponent(row, col, opponent)) {
+                        // Check all possible moves for this piece
+                        for (let toRow = 0; toRow < 8 && !canBlock; toRow++) {
+                            for (let toCol = 0; toCol < 8 && !canBlock; toCol++) {
+                                if (isValidMoveForPlayer(row, col, toRow, toCol, opponent)) {
+                                    // Test the move
+                                    const originalPiece = chessBoard[toRow][toCol];
+                                    const originalSelected = chessBoard[row][col];
+                                    chessBoard[toRow][toCol] = chessBoard[row][col];
+                                    chessBoard[row][col] = '';
+                                    if (!isKingInCheck(opponent)) {
+                                        canBlock = true;
+                                    }
+                                    // Revert
+                                    chessBoard[row][col] = originalSelected;
+                                    chessBoard[toRow][toCol] = originalPiece;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (!canMove && !canBlock) {
+                gameEnded = true;
+                const winner = currentPlayer.charAt(0).toUpperCase() + currentPlayer.slice(1);
+                document.getElementById('chess-status').textContent = `Checkmate - ${winner} Wins!`;
+                document.getElementById('chess-status').className = 'feedback checkmate-message show';
+                clearInterval(timerInterval);
+            }
+        }
+
+        function isPieceOfOpponent(row, col, opponent) {
+            const piece = chessBoard[row][col];
+            if (opponent === 'white') {
+                return piece && piece.charCodeAt(0) >= 9812 && piece.charCodeAt(0) <= 9817; // White pieces
+            } else {
+                return piece && piece.charCodeAt(0) >= 9818 && piece.charCodeAt(0) <= 9823; // Black pieces
+            }
+        }
+
+        function isValidMoveForPlayer(fromRow, fromCol, toRow, toCol, player) {
+            const piece = chessBoard[fromRow][fromCol];
+            const target = chessBoard[toRow][toCol];
+            const isWhite = player === 'white';
+            const pawnKey = `${fromRow},${fromCol}`;
+
+            // Can't capture own piece
+            if (target && isPieceOfOpponent(toRow, toCol, player)) return false;
+
+            // Pawn movement logic
+            if (piece === '♟' || piece === '♙') {
+                const direction = piece === '♟' ? 1 : -1; // Black pawns move down (positive row), white pawns move up (negative row)
+                const startRow = piece === '♟' ? 1 : 6; // Black pawns start at row 1, white at row 6
+
+                // Forward movement
+                if (fromCol === toCol) {
+                    // Must be empty square
+                    if (target) return false;
+
+                    // One square forward
+                    if (toRow === fromRow + direction) return true;
+
+                    // Two squares forward on first move
+                    if (fromRow === startRow && toRow === fromRow + 2 * direction && !pawnFirstMoves.has(pawnKey)) {
+                        // Check if path is clear
+                        const middleRow = fromRow + direction;
+                        if (!chessBoard[middleRow][fromCol]) return true;
+                    }
+                }
+                // Diagonal capture
+                else if (Math.abs(toCol - fromCol) === 1 && toRow === fromRow + direction) {
+                    // Must be enemy piece to capture
+                    return target && !isPieceOfOpponent(toRow, toCol, player);
+                }
+
+                return false; // No backward or sideways movement
+            }
+
+            // King movement - basic adjacent squares
+            if (piece === '♚' || piece === '♔') {
+                const rowDiff = Math.abs(toRow - fromRow);
+                const colDiff = Math.abs(toCol - fromCol);
+                return rowDiff <= 1 && colDiff <= 1 && !(rowDiff === 0 && colDiff === 0);
+            }
+
+            // Knight movement - L-shape
+            if (piece === '♞' || piece === '♘') {
+                const rowDiff = Math.abs(toRow - fromRow);
+                const colDiff = Math.abs(toCol - fromCol);
+                return (rowDiff === 2 && colDiff === 1) || (rowDiff === 1 && colDiff === 2);
+            }
+
+            // For other pieces, allow any move (simplified - we'll rely on king safety check)
+            return true;
+        }
+
+        function switchPlayer() {
+            currentPlayer = currentPlayer === 'white' ? 'black' : 'white';
+            document.getElementById('current-player').textContent = currentPlayer.charAt(0).toUpperCase() + currentPlayer.slice(1);
+        }
+
+        function showPossibleMoves(row, col) {
+            const piece = chessBoard[row][col];
+
+            // For knights, show L-shaped moves
+            if (piece === '♞' || piece === '♘') {
+                const knightMoves = [
+                    [-2, -1], [-2, 1], [-1, -2], [-1, 2],
+                    [1, -2], [1, 2], [2, -1], [2, 1]
+                ];
+                knightMoves.forEach(([dr, dc]) => {
+                    const newRow = row + dr;
+                    const newCol = col + dc;
+                    if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
+                        const square = document.querySelector(`[data-row="${newRow}"][data-col="${newCol}"]`);
+                        if (!chessBoard[newRow][newCol] || !isPieceOfCurrentPlayer(newRow, newCol)) {
+                            square.classList.add('possible-move');
+                        }
+                    }
+                });
+                return;
+            }
+
+            // For pawns, show forward moves
+            if (piece === '♟' || piece === '♙') {
+                const direction = piece === '♟' ? 1 : -1;
+                const startRow = piece === '♟' ? 1 : 6;
+                const pawnKey = `${row},${col}`;
+
+                // One square forward
+                const oneForwardRow = row + direction;
+                if (oneForwardRow >= 0 && oneForwardRow < 8 && !chessBoard[oneForwardRow][col]) {
+                    const square = document.querySelector(`[data-row="${oneForwardRow}"][data-col="${col}"]`);
+                    square.classList.add('possible-move');
+
+                    // Two squares forward on first move
+                    if (row === startRow && !pawnFirstMoves.has(pawnKey)) {
+                        const twoForwardRow = row + 2 * direction;
+                        if (twoForwardRow >= 0 && twoForwardRow < 8 && !chessBoard[twoForwardRow][col]) {
+                            const square2 = document.querySelector(`[data-row="${twoForwardRow}"][data-col="${col}"]`);
+                            square2.classList.add('possible-move');
+                        }
+                    }
+                }
+
+                // Diagonal captures
+                const leftCaptureCol = col - 1;
+                const rightCaptureCol = col + 1;
+                const captureRow = row + direction;
+
+                if (captureRow >= 0 && captureRow < 8) {
+                    if (leftCaptureCol >= 0 && chessBoard[captureRow][leftCaptureCol] && !isPieceOfCurrentPlayer(captureRow, leftCaptureCol)) {
+                        const square = document.querySelector(`[data-row="${captureRow}"][data-col="${leftCaptureCol}"]`);
+                        square.classList.add('possible-move');
+                    }
+                    if (rightCaptureCol < 8 && chessBoard[captureRow][rightCaptureCol] && !isPieceOfCurrentPlayer(captureRow, rightCaptureCol)) {
+                        const square = document.querySelector(`[data-row="${captureRow}"][data-col="${rightCaptureCol}"]`);
+                        square.classList.add('possible-move');
+                    }
+                }
+                return;
+            }
+
+            // For king, show adjacent squares
+            if (piece === '♚' || piece === '♔') {
+                const directions = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
+                directions.forEach(([dr, dc]) => {
+                    const newRow = row + dr;
+                    const newCol = col + dc;
+                    if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
+                        const square = document.querySelector(`[data-row="${newRow}"][data-col="${newCol}"]`);
+                        if (!chessBoard[newRow][newCol] || !isPieceOfCurrentPlayer(newRow, newCol)) {
+                            square.classList.add('possible-move');
+                        }
+                    }
+                });
+                return;
+            }
+
+            // For other pieces, show adjacent squares (simplified)
+            const directions = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
+            directions.forEach(([dr, dc]) => {
+                const newRow = row + dr;
+                const newCol = col + dc;
+                if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
+                    const square = document.querySelector(`[data-row="${newRow}"][data-col="${newCol}"]`);
+                    if (!chessBoard[newRow][newCol] || !isPieceOfCurrentPlayer(newRow, newCol)) {
+                        square.classList.add('possible-move');
+                    }
+                }
+            });
+        }
+
+        function clearPossibleMoves() {
+            document.querySelectorAll('.possible-move').forEach(square => square.classList.remove('possible-move'));
+        }
+
+        function startTimers() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (gameEnded) return;
+                if (currentPlayer === 'white') {
+                    whiteTime--;
+                    if (whiteTime <= 0) {
+                        gameEnded = true;
+                        document.getElementById('chess-status').textContent = 'Time\'s up - Black Wins!';
+                        document.getElementById('chess-status').className = 'feedback correct show';
+                        clearInterval(timerInterval);
+                        return;
+                    }
+                } else {
+                    blackTime--;
+                    if (blackTime <= 0) {
+                        gameEnded = true;
+                        document.getElementById('chess-status').textContent = 'Time\'s up - White Wins!';
+                        document.getElementById('chess-status').className = 'feedback correct show';
+                        clearInterval(timerInterval);
+                        return;
+                    }
+                }
+                updateTimers();
+            }, 1000);
+        }
+
+        function updateTimers() {
+            document.getElementById('white-timer').textContent = formatTime(whiteTime);
+            document.getElementById('black-timer').textContent = formatTime(blackTime);
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function resetChess() {
+            chessBoard = [
+                ['♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜'],
+                ['♟', '♟', '♟', '♟', '♟', '♟', '♟', '♟'],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['♙', '♙', '♙', '♙', '♙', '♙', '♙', '♙'],
+                ['♖', '♘', '♗', '♕', '♔', '♗', '♘', '♖']
+            ];
+            currentPlayer = 'white';
+            whiteTime = 300;
+            blackTime = 300;
+            selectedSquare = null;
+            gameStarted = false;
+            gameEnded = false;
+            checkStatus = false;
+            pawnFirstMoves = new Set();
+            document.getElementById('current-player').textContent = 'White';
+            document.getElementById('chess-status').textContent = '';
+            updateTimers();
+            renderChessBoard();
+            clearInterval(timerInterval);
+        }
+
+        document.getElementById('start-chess').addEventListener('click', () => {
+            if (!gameStarted && !gameEnded) {
+                gameStarted = true;
+                startTimers();
+                document.getElementById('chess-status').textContent = 'Game started!';
+                document.getElementById('chess-status').className = 'feedback correct show';
+                setTimeout(() => {
+                    if (!checkStatus) document.getElementById('chess-status').textContent = '';
+                }, 2000);
+            }
+        });
+
+        document.getElementById('reset-chess').addEventListener('click', resetChess);
+
+        // Sudoku Logic
+        const sudokuPuzzles = [
+            [
+                [5,3,0,0,7,0,0,0,0],
+                [6,0,0,1,9,5,0,0,0],
+                [0,9,8,0,0,0,0,6,0],
+                [8,0,0,0,6,0,0,0,3],
+                [4,0,0,8,0,3,0,0,1],
+                [7,0,0,0,2,0,0,0,6],
+                [0,6,0,0,0,0,2,8,0],
+                [0,0,0,4,1,9,0,0,5],
+                [0,0,0,0,8,0,0,7,9]
+            ],
+            [
+                [0,0,0,2,6,0,7,0,1],
+                [6,8,0,0,7,0,0,9,0],
+                [1,9,0,0,0,4,5,0,0],
+                [8,2,0,1,0,0,0,4,0],
+                [0,0,4,6,0,2,9,0,0],
+                [0,5,0,0,0,3,0,2,8],
+                [0,0,9,3,0,0,0,7,4],
+                [0,4,0,0,5,0,0,3,6],
+                [7,0,3,0,1,8,0,0,0]
+            ],
+            [
+                [0,2,0,6,0,8,0,0,0],
+                [5,8,0,0,0,9,7,0,0],
+                [0,0,0,0,4,0,0,0,0],
+                [3,7,0,0,0,0,5,0,0],
+                [6,0,0,0,7,0,0,0,4],
+                [0,0,8,0,0,0,0,1,3],
+                [0,0,0,0,2,0,0,0,0],
+                [0,0,9,8,0,0,0,3,6],
+                [0,0,0,3,0,6,0,9,8]
+            ],
+            [
+                [1,0,0,4,8,9,0,0,6],
+                [7,3,0,0,0,0,0,4,0],
+                [0,0,0,0,0,1,2,9,5],
+                [0,0,7,1,2,0,6,0,0],
+                [5,0,0,7,0,3,0,0,8],
+                [0,0,6,0,9,5,7,0,0],
+                [9,1,4,6,0,0,0,0,0],
+                [0,2,0,0,0,0,0,3,7],
+                [8,0,0,5,1,2,0,0,4]
+            ],
+            [
+                [2,0,0,3,0,0,0,0,0],
+                [8,0,4,0,6,2,0,0,3],
+                [0,1,3,8,0,0,2,0,0],
+                [0,0,0,0,2,0,3,9,0],
+                [5,0,7,0,0,0,6,2,1],
+                [0,3,2,0,0,6,0,0,0],
+                [0,2,0,0,0,9,1,4,0],
+                [6,0,1,2,5,0,8,0,9],
+                [0,0,0,0,0,1,0,0,2]
+            ]
+        ];
+        const solutions = [
+            [
+                [5,3,4,6,7,8,9,1,2],
+                [6,7,2,1,9,5,3,4,8],
+                [1,9,8,3,4,2,5,6,7],
+                [8,5,9,7,6,1,4,2,3],
+                [4,2,6,8,5,3,7,9,1],
+                [7,1,3,9,2,4,8,5,6],
+                [9,6,1,5,3,7,2,8,4],
+                [2,8,7,4,1,9,6,3,5],
+                [3,4,5,2,8,6,1,7,9]
+            ],
+            [
+                [4,3,5,2,6,9,7,8,1],
+                [6,8,2,5,7,1,4,9,3],
+                [1,9,7,8,3,4,5,6,2],
+                [8,2,6,1,9,5,3,4,7],
+                [3,7,4,6,8,2,9,1,5],
+                [9,5,1,7,4,3,6,2,8],
+                [5,1,9,3,2,6,8,7,4],
+                [2,4,8,9,5,7,1,3,6],
+                [7,6,3,4,1,8,2,5,9]
+            ],
+            [
+                [1,2,3,6,7,8,9,4,5],
+                [5,8,4,2,3,9,7,6,1],
+                [9,6,7,1,4,5,3,2,8],
+                [3,7,2,4,6,1,5,8,9],
+                [6,9,1,5,7,3,4,2,8],
+                [4,5,8,9,2,7,6,1,3],
+                [8,3,6,7,9,2,1,5,4],
+                [2,1,9,8,5,4,3,7,6],
+                [7,4,5,3,1,6,8,9,2]
+            ]
+        ];
+        let sudokuPuzzleIndex = 0;
+
+        function initSudoku() {
+            loadSudokuPuzzle(sudokuPuzzleIndex);
+        }
+
+        function loadSudokuPuzzle(index) {
+            const grid = document.getElementById('sudoku-grid');
+            grid.innerHTML = '';
+            let filledCount = 0;
+            for (let row = 0; row < 9; row++) {
+                for (let col = 0; col < 9; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'sudoku-cell';
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.min = 1;
+                    input.max = 9;
+                    input.maxLength = 1;
+                    input.value = sudokuPuzzles[index][row][col] || '';
+                    input.addEventListener('input', (e) => {
+                        const value = e.target.value;
+                        if (value && (isNaN(value) || value < 1 || value > 9)) {
+                            e.target.value = '';
+                        }
+                        validateCell(e.target);
+                        checkCellCorrectness(e.target);
+                    });
+                    if (sudokuPuzzles[index][row][col]) {
+                        input.disabled = true;
+                        cell.classList.add('fixed');
+                        filledCount++;
+                    }
+                    cell.appendChild(input);
+                    grid.appendChild(cell);
+                }
+            }
+            // Ensure 20-30 pre-filled numbers
+            if (filledCount < 20 || filledCount > 30) {
+                // Adjust by adding/removing some fixed cells (simplified)
+                console.log(`Puzzle ${index} has ${filledCount} pre-filled cells`);
+            }
+        }
+
+        function validateCell(input) {
+            const value = parseInt(input.value);
+            if (!value) {
+                input.parentElement.classList.remove('conflict', 'valid', 'correct', 'incorrect');
+                return;
+            }
+            const row = Math.floor(Array.from(input.parentElement.parentElement.children).indexOf(input.parentElement) / 9);
+            const col = Array.from(input.parentElement.parentElement.children).indexOf(input.parentElement) % 9;
+            const cells = document.querySelectorAll('.sudoku-cell input');
+
+            // Check row
+            for (let c = 0; c < 9; c++) {
+                if (c !== col && parseInt(cells[row * 9 + c].value) === value) {
+                    input.parentElement.classList.add('conflict');
+                    input.parentElement.classList.remove('valid', 'correct', 'incorrect');
+                    return;
+                }
+            }
+            // Check column
+            for (let r = 0; r < 9; r++) {
+                if (r !== row && parseInt(cells[r * 9 + col].value) === value) {
+                    input.parentElement.classList.add('conflict');
+                    input.parentElement.classList.remove('valid', 'correct', 'incorrect');
+                    return;
+                }
+            }
+            // Check 3x3 box
+            const boxRow = Math.floor(row / 3) * 3;
+            const boxCol = Math.floor(col / 3) * 3;
+            for (let r = boxRow; r < boxRow + 3; r++) {
+                for (let c = boxCol; c < boxCol + 3; c++) {
+                    if ((r !== row || c !== col) && parseInt(cells[r * 9 + c].value) === value) {
+                        input.parentElement.classList.add('conflict');
+                        input.parentElement.classList.remove('valid', 'correct', 'incorrect');
+                        return;
+                    }
+                }
+            }
+            input.parentElement.classList.add('valid');
+            input.parentElement.classList.remove('conflict', 'correct', 'incorrect');
+        }
+
+        function checkCellCorrectness(input) {
+            const value = parseInt(input.value);
+            if (!value) {
+                input.parentElement.classList.remove('correct', 'incorrect');
+                return;
+            }
+            const row = Math.floor(Array.from(input.parentElement.parentElement.children).indexOf(input.parentElement) / 9);
+            const col = Array.from(input.parentElement.parentElement.children).indexOf(input.parentElement) % 9;
+            if (solutions[sudokuPuzzleIndex][row][col] === value) {
+                input.parentElement.classList.add('correct');
+                input.parentElement.classList.remove('incorrect');
+            } else {
+                input.parentElement.classList.add('incorrect');
+                input.parentElement.classList.remove('correct');
+            }
+        }
+
+        document.getElementById('submit-sudoku').addEventListener('click', () => {
+            const feedback = document.getElementById('sudoku-feedback');
+            if (validateSudoku()) {
+                feedback.textContent = ['Perfect!', 'You nailed it!', 'Excellent!'][Math.floor(Math.random() * 3)];
+                feedback.className = 'feedback correct show';
+                sudokuPuzzleIndex = (sudokuPuzzleIndex + 1) % sudokuPuzzles.length;
+                setTimeout(() => {
+                    loadSudokuPuzzle(sudokuPuzzleIndex);
+                    feedback.textContent = '';
+                }, 2000);
+            } else {
+                feedback.textContent = ['Almost there!', 'Check your rows again.', 'Keep trying!'][Math.floor(Math.random() * 3)];
+                feedback.className = 'feedback incorrect show';
+            }
+        });
+
+        document.getElementById('show-answer-sudoku').addEventListener('click', () => {
+            const cells = document.querySelectorAll('.sudoku-cell input');
+            for (let i = 0; i < 9; i++) {
+                for (let j = 0; j < 9; j++) {
+                    cells[i * 9 + j].value = solutions[sudokuPuzzleIndex][i][j];
+                    cells[i * 9 + j].disabled = true;
+                }
+            }
+            document.getElementById('sudoku-feedback').textContent = 'Solution revealed!';
+            document.getElementById('sudoku-feedback').className = 'feedback correct show';
+        });
+        // Auto puzzle rotation after correct submission is already implemented
+
+        function validateSudoku() {
+            const grid = [];
+            const cells = document.querySelectorAll('.sudoku-cell input');
+            for (let i = 0; i < 9; i++) {
+                grid[i] = [];
+                for (let j = 0; j < 9; j++) {
+                    const value = parseInt(cells[i * 9 + j].value);
+                    if (!value || value < 1 || value > 9) return false;
+                    grid[i][j] = value;
+                }
+            }
+            // Check rows for duplicates
+            for (let row = 0; row < 9; row++) {
+                const rowSet = new Set(grid[row]);
+                if (rowSet.size !== 9) return false;
+            }
+            // Check columns for duplicates
+            for (let col = 0; col < 9; col++) {
+                const column = grid.map(row => row[col]);
+                const colSet = new Set(column);
+                if (colSet.size !== 9) return false;
+            }
+            // Check 3x3 boxes for duplicates
+            for (let boxRow = 0; boxRow < 3; boxRow++) {
+                for (let boxCol = 0; boxCol < 3; boxCol++) {
+                    const box = [];
+                    for (let i = 0; i < 3; i++) {
+                        for (let j = 0; j < 3; j++) {
+                            box.push(grid[boxRow * 3 + i][boxCol * 3 + j]);
+                        }
+                    }
+                    const boxSet = new Set(box);
+                    if (boxSet.size !== 9) return false;
+                }
+            }
+            return true;
+        }
+
+        // Word Search Logic
+        const puzzles = [
+            {
+                grid: [
+                    ['T','I','G','E','R','A','B','C','D','E'],
+                    ['L','I','O','N','N','K','L','M','N','O'],
+                    ['E','L','E','P','H','A','N','T','X','Y'],
+                    ['Z','A','B','C','D','E','F','G','H','I'],
+                    ['G','I','R','A','F','F','E','Q','R','S'],
+                    ['T','U','V','W','X','Y','Z','A','B','C'],
+                    ['D','E','F','G','H','I','J','K','L','M'],
+                    ['Z','E','B','R','A','S','T','U','V','W'],
+                    ['X','Y','Z','A','B','C','D','E','F','G'],
+                    ['H','I','J','K','L','M','N','O','P','Q']
+                ],
+                wordList: ['TIGER', 'LION', 'ELEPHANT', 'GIRAFFE', 'ZEBRA']
+            },
+            {
+                grid: [
+                    ['A','P','P','L','E','S','A','U','C','E'],
+                    ['B','A','N','A','N','A','R','E','D','D'],
+                    ['C','H','E','R','R','Y','O','R','A','N'],
+                    ['D','R','A','G','O','N','F','R','U','I'],
+                    ['E','L','M','O','N','G','O','L','E','M'],
+                    ['F','I','G','S','A','R','E','S','W','E'],
+                    ['G','R','A','P','E','S','T','O','N','E'],
+                    ['H','O','N','E','Y','D','E','W','M','E'],
+                    ['I','J','K','L','M','N','O','P','Q','R'],
+                    ['E','N','O','T','S','O','P','Q','R','S']
+                ],
+                wordList: ['APPLE', 'BANANA', 'CHERRY', 'DRAGON', 'ELMONGO']
+            },
+            {
+                grid: [
+                    ['S','U','N','F','L','O','W','E','R','S'],
+                    ['T','A','R','G','E','T','S','H','O','T'],
+                    ['U','N','I','C','O','R','N','I','S','H'],
+                    ['V','O','L','C','A','N','O','E','R','U'],
+                    ['W','H','I','R','L','W','I','N','D','S'],
+                    ['X','Y','Z','A','B','C','D','E','F','G'],
+                    ['Y','Z','A','B','C','D','E','F','G','H'],
+                    ['Z','A','B','C','D','E','F','G','H','I'],
+                    ['A','B','C','D','E','F','G','H','I','J'],
+                    ['B','C','D','E','F','G','H','I','J','K']
+                ],
+                wordList: ['SUNFLOWER', 'TARGET', 'UNICORN', 'VOLCANO', 'WHIRLWIND']
+            },
+            {
+                grid: [
+                    ['C','O','M','P','U','T','E','R','S','C'],
+                    ['A','L','G','O','R','I','T','H','M','S'],
+                    ['T','E','C','H','N','O','L','O','G','Y'],
+                    ['D','A','T','A','B','A','S','E','S','E'],
+                    ['E','N','C','R','Y','P','T','I','O','N'],
+                    ['F','I','R','E','W','A','L','L','S','S'],
+                    ['G','I','T','H','U','B','R','E','P','O'],
+                    ['H','A','C','K','E','R','S','A','R','E'],
+                    ['I','N','T','E','R','N','E','T','O','F'],
+                    ['J','A','V','A','S','C','R','I','P','T']
+                ],
+                wordList: ['COMPUTERS', 'ALGORITHMS', 'HACKERS', 'INTERNET', 'JAVASCRIPT']
+            },
+            {
+                grid: [
+                    ['M','U','S','I','C','N','O','T','E','S'],
+                    ['E','L','E','C','T','R','I','C','G','U'],
+                    ['T','A','L','E','N','T','S','H','O','W'],
+                    ['A','L','L','S','T','A','R','S','I','N'],
+                    ['L','I','S','T','E','N','T','O','T','H'],
+                    ['L','I','C','A','N','C','E','R','O','C'],
+                    ['I','C','O','N','S','O','F','R','O','C'],
+                    ['C','A','N','T','O','R','S','I','N','G'],
+                    ['A','N','D','D','A','N','C','E','R','S'],
+                    ['L','L','R','O','C','K','B','A','N','D']
+                ],
+                wordList: ['MUSICNOTES', 'ELECTRIC', 'TALENTS', 'ALLSTARS','ROCKBAND']
+            },
+            {
+                grid: [
+                    ['C','A','T','D','O','G','H','I','J','K'],
+                    ['M','O','U','S','E','Q','R','S','T','U'],
+                    ['H','O','R','S','E','A','B','C','D','E'],
+                    ['S','H','E','E','P','K','L','M','N','O'],
+                    ['P','Q','R','S','T','U','V','W','X','Y'],
+                    ['Z','A','B','C','D','E','F','G','H','I'],
+                    ['J','K','L','M','N','O','P','Q','R','S'],
+                    ['T','U','V','W','X','Y','Z','A','B','C'],
+                    ['D','E','F','G','H','I','J','K','L','M'],
+                    ['N','O','P','Q','R','S','T','U','V','W']
+                ],
+                wordList: ['CAT', 'DOG', 'MOUSE', 'HORSE', 'SHEEP']
+            },
+            {
+                grid: [
+                    ['B','O','O','K','L','M','N','O','P','Q'],
+                    ['P','E','N','U','V','W','X','Y','Z','A'],
+                    ['P','A','P','E','R','G','H','I','J','K'],
+                    ['I','N','K','O','P','Q','R','S','T','U'],
+                    ['N','O','T','E','Z','A','B','C','D','E'],
+                    ['F','G','H','I','J','K','L','M','N','O'],
+                    ['P','Q','R','S','T','U','V','W','X','Y'],
+                    ['Z','A','B','C','D','E','F','G','H','I'],
+                    ['J','K','L','M','N','O','P','Q','R','S'],
+                    ['T','U','V','W','X','Y','Z','A','B','C']
+                ],
+                wordList: ['BOOK', 'PEN', 'PAPER', 'INK', 'NOTE']
+            },
+            {
+                grid: [
+                    ['S','U','N','D','E','F','G','H','I','J'],
+                    ['M','O','O','N','O','P','Q','R','S','T'],
+                    ['S','T','A','R','Y','Z','A','B','C','D'],
+                    ['P','L','A','N','E','T','K','L','M','N'],
+                    ['G','A','L','A','X','Y','U','V','W','X'],
+                    ['Y','Z','A','B','C','D','E','F','G','H'],
+                    ['I','J','K','L','M','N','O','P','Q','R'],
+                    ['S','T','U','V','W','X','Y','Z','A','B'],
+                    ['C','D','E','F','G','H','I','J','K','L'],
+                    ['M','N','O','P','Q','R','S','T','U','V']
+                ],
+                wordList: ['SUN', 'MOON', 'STAR', 'PLANET', 'GALAXY']
+            },
+            {
+                grid: [
+                    ['F','R','U','I','T','F','G','H','I','J'],
+                    ['A','P','P','L','E','P','Q','R','S','T'],
+                    ['B','A','N','A','N','A','A','B','C','D'],
+                    ['O','R','A','N','G','E','K','L','M','N'],
+                    ['G','R','A','P','E','T','U','V','W','X'],
+                    ['Y','Z','A','B','C','D','E','F','G','H'],
+                    ['I','J','K','L','M','N','O','P','Q','R'],
+                    ['S','T','U','V','W','X','Y','Z','A','B'],
+                    ['C','D','E','F','G','H','I','J','K','L'],
+                    ['M','N','O','P','Q','R','S','T','U','V']
+                ],
+                wordList: ['FRUIT', 'APPLE', 'BANANA', 'ORANGE', 'GRAPE']
+            },
+            {
+                grid: [
+                    ['A','N','I','M','A','L','G','H','I','J'],
+                    ['D','O','G','N','O','P','Q','R','S','T'],
+                    ['C','A','T','X','Y','Z','A','B','C','D'],
+                    ['B','I','R','D','I','J','K','L','M','N'],
+                    ['F','I','S','H','T','U','V','W','X','Y'],
+                    ['Y','Z','A','B','C','D','E','F','G','H'],
+                    ['I','J','K','L','M','N','O','P','Q','R'],
+                    ['S','T','U','V','W','X','Y','Z','A','B'],
+                    ['C','D','E','F','G','H','I','J','K','L'],
+                    ['M','N','O','P','Q','R','S','T','U','V']
+                ],
+                wordList: ['ANIMAL', 'DOG', 'CAT', 'BIRD', 'FISH']
+            },
+            {
+                grid: [
+                    ['C','O','L','O','R','F','G','H','I','J'],
+                    ['R','E','D','N','O','P','Q','R','S','T'],
+                    ['B','L','U','E','Y','Z','A','B','C','D'],
+                    ['G','R','E','E','N','J','K','L','M','N'],
+                    ['Y','E','L','L','O','W','U','V','W','X'],
+                    ['Y','Z','A','B','C','D','E','F','G','H'],
+                    ['I','J','K','L','M','N','O','P','Q','R'],
+                    ['S','T','U','V','W','X','Y','Z','A','B'],
+                    ['C','D','E','F','G','H','I','J','K','L'],
+                    ['M','N','O','P','Q','R','S','T','U','V']
+                ],
+                wordList: ['COLOR', 'RED', 'BLUE', 'GREEN', 'YELLOW']
+            },
+            {
+                grid: [
+                    ['M','U','S','I','C','F','G','H','I','J'],
+                    ['S','O','N','G','O','P','Q','R','S','T'],
+                    ['D','A','N','C','E','Z','A','B','C','D'],
+                    ['P','I','A','N','O','J','K','L','M','N'],
+                    ['G','U','I','T','A','R','U','V','W','X'],
+                    ['Y','Z','A','B','C','D','E','F','G','H'],
+                    ['I','J','K','L','M','N','O','P','Q','R'],
+                    ['S','T','U','V','W','X','Y','Z','A','B'],
+                    ['C','D','E','F','G','H','I','J','K','L'],
+                    ['M','N','O','P','Q','R','S','T','U','V']
+                ],
+                wordList: ['MUSIC', 'SONG', 'DANCE', 'PIANO', 'GUITAR']
+            },
+            {
+                grid: [
+                    ['S','P','O','R','T','F','G','H','I','J'],
+                    ['B','A','L','L','O','P','Q','R','S','T'],
+                    ['R','U','N','X','Y','Z','A','B','C','D'],
+                    ['S','W','I','M','I','J','K','L','M','N'],
+                    ['J','U','M','P','T','U','V','W','X','Y'],
+                    ['Y','Z','A','B','C','D','E','F','G','H'],
+                    ['I','J','K','L','M','N','O','P','Q','R'],
+                    ['S','T','U','V','W','X','Y','Z','A','B'],
+                    ['C','D','E','F','G','H','I','J','K','L'],
+                    ['M','N','O','P','Q','R','S','T','U','V']
+                ],
+                wordList: ['SPORT', 'BALL', 'RUN', 'SWIM', 'JUMP']
+            },
+            {
+                grid: [
+                    ['F','O','O','D','E','F','G','H','I','J'],
+                    ['P','I','Z','Z','A','P','Q','R','S','T'],
+                    ['B','U','R','G','E','R','A','B','C','D'],
+                    ['P','A','S','T','A','J','K','L','M','N'],
+                    ['S','A','L','A','D','U','V','W','X','Y'],
+                    ['Y','Z','A','B','C','D','E','F','G','H'],
+                    ['I','J','K','L','M','N','O','P','Q','R'],
+                    ['S','T','U','V','W','X','Y','Z','A','B'],
+                    ['C','D','E','F','G','H','I','J','K','L'],
+                    ['M','N','O','P','Q','R','S','T','U','V']
+                ],
+                wordList: ['FOOD', 'PIZZA', 'BURGER', 'PASTA', 'SALAD']
+            }
+        ];
+        let currentPuzzleIndex = 0;
+        let wordGrid = [];
+        let targetWords = [];
+        let foundWords = new Set();
+        let isSelecting = false;
+        let selectedCells = [];
+
+        function initPuzzle() {
+            loadWordPuzzle(currentPuzzleIndex);
+        }
+
+        function loadWordPuzzle(index) {
+            wordGrid = puzzles[index].grid.map(row => [...row]);
+            targetWords = [...puzzles[index].wordList];
+            foundWords = new Set();
+            renderWordList();
+            renderWordGrid();
+            document.getElementById('puzzle-feedback').textContent = '';
+            // Clear all highlights and re-enable interaction
+            document.querySelectorAll('.word-cell.found').forEach(cell => cell.classList.remove('found'));
+            document.querySelectorAll('.word-cell.incorrect-selection').forEach(cell => cell.classList.remove('incorrect-selection'));
+            document.querySelectorAll('.word-cell').forEach(cell => {
+                cell.style.pointerEvents = 'auto';
+            });
+        }
+
+        function resetPuzzle() {
+            loadWordPuzzle(currentPuzzleIndex);
+        }
+
+        function nextPuzzle() {
+            currentPuzzleIndex = (currentPuzzleIndex + 1) % puzzles.length;
+            loadWordPuzzle(currentPuzzleIndex);
+            // Clear feedback after loading new puzzle
+            setTimeout(() => {
+                document.getElementById('puzzle-feedback').textContent = '';
+            }, 1000);
+        }
+
+        function generateWordGrid() {
+            const gridSize = 10;
+            wordGrid = Array(gridSize).fill().map(() => Array(gridSize).fill(''));
+            // Fill with random letters
+            const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            for (let row = 0; row < gridSize; row++) {
+                for (let col = 0; col < gridSize; col++) {
+                    wordGrid[row][col] = letters[Math.floor(Math.random() * letters.length)];
+                }
+            }
+            // Embed target words
+            targetWords.forEach(word => embedWord(word));
+        }
+
+        function embedWord(word) {
+            const directions = [
+                [0, 1], [1, 0], [1, 1], [1, -1], // right, down, down-right, down-left
+                [0, -1], [-1, 0], [-1, -1], [-1, 1] // left, up, up-left, up-right
+            ];
+            let placed = false;
+            let attempts = 0;
+            while (!placed && attempts < 100) {
+                const direction = directions[Math.floor(Math.random() * directions.length)];
+                const startRow = Math.floor(Math.random() * 10);
+                const startCol = Math.floor(Math.random() * 10);
+                if (canPlaceWord(word, startRow, startCol, direction)) {
+                    placeWord(word, startRow, startCol, direction);
+                    placed = true;
+                }
+                attempts++;
+            }
+            if (!placed) {
+                console.warn(`Could not place word: ${word}`);
+            }
+        }
+
+        function canPlaceWord(word, startRow, startCol, [dr, dc]) {
+            for (let i = 0; i < word.length; i++) {
+                const row = startRow + i * dr;
+                const col = startCol + i * dc;
+                if (row < 0 || row >= 10 || col < 0 || col >= 10) return false;
+            }
+            return true;
+        }
+
+        function placeWord(word, startRow, startCol, [dr, dc]) {
+            for (let i = 0; i < word.length; i++) {
+                const row = startRow + i * dr;
+                const col = startCol + i * dc;
+                wordGrid[row][col] = word[i];
+            }
+        }
+
+        function renderWordList() {
+            const wordList = document.getElementById('word-list');
+            wordList.innerHTML = `Find these words (${foundWords.size} of ${targetWords.length} found): `;
+            targetWords.forEach(word => {
+                const span = document.createElement('span');
+                span.textContent = word;
+                if (foundWords.has(word)) {
+                    span.classList.add('found');
+                }
+                wordList.appendChild(span);
+            });
+        }
+
+        function renderWordGrid() {
+            const grid = document.getElementById('word-grid');
+            grid.innerHTML = '';
+            for (let row = 0; row < 10; row++) {
+                for (let col = 0; col < 10; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'word-cell';
+                    cell.textContent = wordGrid[row][col];
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+                    cell.addEventListener('mousedown', startSelection);
+                    cell.addEventListener('mouseover', continueSelection);
+                    cell.addEventListener('mouseup', endSelection);
+                    
+                    // Add touch event listeners for mobile
+                    cell.addEventListener('touchstart', handleTouchStart, { passive: false });
+                    cell.addEventListener('touchmove', handleTouchMove, { passive: false });
+                    cell.addEventListener('touchend', handleTouchEnd, { passive: false });
+                    
+                    grid.appendChild(cell);
+                }
+            }
+        }
+
+        // Touch handlers for puzzle word selection
+        function handleTouchStart(event) {
+            event.preventDefault();
+            // Get the actual target from touch
+            const touch = event.touches[0];
+            const target = document.elementFromPoint(touch.clientX, touch.clientY);
+            if (target && target.classList.contains('word-cell')) {
+                // Create a synthetic event for startSelection
+                const syntheticEvent = {
+                    target: target,
+                    preventDefault: () => {}
+                };
+                startSelection(syntheticEvent);
+            }
+        }
+
+        function handleTouchMove(event) {
+            event.preventDefault();
+            const touch = event.touches[0];
+            const target = document.elementFromPoint(touch.clientX, touch.clientY);
+            if (target && target.classList.contains('word-cell')) {
+                // Create a synthetic event for continueSelection
+                const syntheticEvent = {
+                    target: target,
+                    preventDefault: () => {}
+                };
+                continueSelection(syntheticEvent);
+            }
+        }
+
+        function handleTouchEnd(event) {
+            event.preventDefault();
+            endSelection();
+        }
+
+        function startSelection(event) {
+            isSelecting = true;
+            selectedCells = [];
+            const row = parseInt(event.target.dataset.row);
+            const col = parseInt(event.target.dataset.col);
+            selectedCells.push({row, col});
+            event.target.classList.add('selected');
+        }
+
+        function continueSelection(event) {
+            if (!isSelecting) return;
+            const row = parseInt(event.target.dataset.row);
+            const col = parseInt(event.target.dataset.col);
+            // Only add if adjacent to the last selected cell and in straight line
+            const lastCell = selectedCells[selectedCells.length - 1];
+            const prevCell = selectedCells.length > 1 ? selectedCells[selectedCells.length - 2] : lastCell;
+            const dr = lastCell.row - prevCell.row;
+            const dc = lastCell.col - prevCell.col;
+            const newDr = row - lastCell.row;
+            const newDc = col - lastCell.col;
+            if (Math.abs(newDr) <= 1 && Math.abs(newDc) <= 1 &&
+                (dr === 0 || newDr === dr) && (dc === 0 || newDc === dc) &&
+                !selectedCells.some(cell => cell.row === row && cell.col === col)) {
+                selectedCells.push({row, col});
+                event.target.classList.add('selected');
+            }
+        }
+
+        function endSelection() {
+            if (!isSelecting) return;
+            isSelecting = false;
+            checkSelectedWord();
+            clearSelection();
+        }
+
+        function clearSelection() {
+            document.querySelectorAll('.word-cell.selected').forEach(cell => cell.classList.remove('selected'));
+        }
+
+        function checkSelectedWord() {
+            if (selectedCells.length < 2) return;
+            const word = selectedCells.map(cell => wordGrid[cell.row][cell.col]).join('');
+            const reverseWord = word.split('').reverse().join('');
+            const feedback = document.getElementById('puzzle-feedback');
+            let found = false;
+            if (targetWords.includes(word) && !foundWords.has(word)) {
+                foundWords.add(word);
+                found = true;
+            } else if (targetWords.includes(reverseWord) && !foundWords.has(reverseWord)) {
+                foundWords.add(reverseWord);
+                found = true;
+            }
+            if (found) {
+                feedback.textContent = 'Nice find!';
+                feedback.className = 'feedback correct show';
+                renderWordList();
+                highlightFoundWord(selectedCells, 'correct');
+                checkPuzzleComplete();
+            } else {
+                feedback.textContent = 'That\'s not a match.';
+                feedback.className = 'feedback incorrect show';
+                highlightFoundWord(selectedCells, 'incorrect');
+            }
+        }
+
+        function checkPuzzleComplete() {
+            if (foundWords.size === targetWords.length) {
+                document.getElementById('puzzle-feedback').textContent = 'Puzzle Complete – Great job!';
+                document.getElementById('puzzle-feedback').className = 'feedback correct show';
+                // Disable further interaction
+                document.querySelectorAll('.word-cell').forEach(cell => {
+                    cell.style.pointerEvents = 'none';
+                });
+                setTimeout(() => nextPuzzle(), 2000);
+            }
+        }
+
+        function highlightFoundWord(cells, type) {
+            cells.forEach(cell => {
+                const element = document.querySelector(`[data-row="${cell.row}"][data-col="${cell.col}"]`);
+                if (type === 'correct') {
+                    element.classList.add('found');
+                } else if (type === 'incorrect') {
+                    element.classList.add('incorrect-selection');
+                    setTimeout(() => element.classList.remove('incorrect-selection'), 1000);
+                }
+            });
+        }
+
+        document.getElementById('reset-puzzle').addEventListener('click', resetPuzzle);
+        document.getElementById('next-puzzle').addEventListener('click', nextPuzzle);
+
+        // Background music control
+        const audio = document.getElementById('bg-music');
+        const playBtn = document.getElementById('play-btn');
+        const muteBtn = document.getElementById('mute-btn');
+
+        playBtn.addEventListener('click', () => {
+            audio.play().then(() => {
+                playBtn.style.display = 'none';
+            }).catch(error => {
+                console.log('Audio play failed:', error);
+            });
+        });
+
+        muteBtn.addEventListener('click', () => {
+            audio.muted = !audio.muted;
+            muteBtn.textContent = audio.muted ? 'Unmute Music' : 'Mute Music';
+        });
+
+function checkGameUnlocks() {
+
+  const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+  const assignments = JSON.parse(localStorage.getItem("assignments")) || [];
+
+  const completedTasks = tasks.filter(t => t.completed).length;
+  const completedAssignments = assignments.filter(a => a.completed).length;
+
+  // Chess - always unlocked
+  document.getElementById("chessBtn").style.opacity = '1';
+  document.getElementById("chessBtn").style.cursor = 'pointer';
+  document.getElementById("chessBtn").dataset.unlocked = 'true';
+
+  // Sudoku - unlock if completed tasks >= 10 (updated from 5)
+  const sudokuBtn = document.getElementById("sudokuBtn");
+  const sudokuNeeded = 10;
+  if (completedTasks >= sudokuNeeded) {
+      sudokuBtn.style.opacity = '1';
+      sudokuBtn.style.cursor = 'pointer';
+      sudokuBtn.title = 'Unlocked!';
+      sudokuBtn.dataset.unlocked = 'true';
+  } else {
+      sudokuBtn.style.opacity = '0.6';
+      sudokuBtn.style.cursor = 'pointer';
+      sudokuBtn.title = 'Complete ' + (sudokuNeeded - completedTasks) + ' more tasks to unlock';
+      sudokuBtn.dataset.unlocked = 'false';
+  }
+
+  // Puzzle - unlock if completed assignments >= 5
+  const puzzleBtn = document.getElementById("puzzleBtn");
+  const puzzleNeeded = 5;
+  if (completedAssignments >= puzzleNeeded) {
+      puzzleBtn.style.opacity = '1';
+      puzzleBtn.style.cursor = 'pointer';
+      puzzleBtn.title = 'Unlocked!';
+      puzzleBtn.dataset.unlocked = 'true';
+  } else {
+      puzzleBtn.style.opacity = '0.6';
+      puzzleBtn.style.cursor = 'pointer';
+      puzzleBtn.title = 'Complete ' + (puzzleNeeded - completedAssignments) + ' more assignments to unlock';
+      puzzleBtn.dataset.unlocked = 'false';
+  }
+}
+
+window.addEventListener("load", checkGameUnlocks);
+//dito tapossssssssssssssssssssssssssssssssssss
+
+    </script>
+    
+</style>
+</body>
+</html>
