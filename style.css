@@ -3,12 +3,33 @@
   box-sizing: border-box;
 }
 
-html, body {
+body.chill,
+body.chill-vibes {
+  background: #f0f9ff;
+  color: #1e293b;
+  font-family: 'Segoe UI', sans-serif;
+  transition: background 0.5s ease, color 0.5s ease;
   overflow-x: hidden;
-  width: 100%;
-  margin: 0;
-  padding: 0;
 }
+
+body.chill {
+  background: #f0f9ff;
+  color: #1e293b;
+}
+
+body.chill .site-header {
+  background: linear-gradient(90deg, #008080, #006666);
+  color: white;
+}
+
+body.chill .site-header a {
+  color: white;
+}
+
+body.chill .logo {
+  color: white;
+}
+
 
 
 
@@ -113,17 +134,6 @@ body.chill button {
   color: white;
 }
 
-/* Calculator Layout Fixes: Responsive grid layout, overflow handling with auto-scroll and font scaling, logical button grouping, DEG/RAD toggle styling, smooth scrolling */
-/* Layout changes: Button grid limited to 4 columns, equals button spans 2 columns, number buttons rearranged for proper calculator order */
-body.chill {
-  /* Removed outer layer background for simplicity */
-  background: none;
-  color: #1e293b;
-  font-family: 'Segoe UI', sans-serif;
-  transition: background 0.5s ease, color 0.5s ease;
-  overflow-x: hidden;
-}
-
 /* Layout */
 .dashboard {
   display: flex;
@@ -216,8 +226,8 @@ body.chill {
   transform: translate(-50%, -50%);
   font-size: 12px;
   font-weight: bold;
-  color: white;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  color: inherit;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
 }
 
 /* Filter Buttons */
@@ -233,7 +243,7 @@ body.chill {
   background: rgba(255, 255, 255, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 6px;
-  color: white;
+  color: inherit;
   cursor: pointer;
   font-size: 12px;
   transition: all 0.2s ease;
@@ -257,10 +267,25 @@ body.chill {
   background: rgba(255, 255, 255, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 8px;
-  color: white;
+  color: inherit;
   cursor: pointer;
   font-size: 12px;
   transition: all 0.2s ease;
+}
+
+.timer-presets button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.custom-timer input {
+  width: 100px;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.2);
+  color: inherit;
+  text-align: center;
 }
 
 .timer-presets button:hover {
@@ -286,7 +311,7 @@ body.chill {
 }
 
 .custom-timer input::placeholder {
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(128, 128, 128, 0.7);
 }
 
 .custom-timer button {
@@ -515,7 +540,7 @@ body.chill {
 
 /* Site Header */
 .site-header {
-  
+   
   position: fixed;
   top: 0;
   left: 0;
@@ -524,6 +549,42 @@ body.chill {
   background: teal;
   z-index: 1000;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+  padding: 0 20px;
+  max-width: 1550px;
+  margin: 0 auto;
+}
+
+.logo {
+  font-size: 28px;
+  font-weight: bold;
+  color: inherit;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.nav-menu a {
+  color: inherit;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 16px;
+  padding: 10px 15px;
+  border-radius: 5px;
+  transition: background 0.3s ease;
+}
+
+.nav-menu a:hover {
+  background: rgba(128, 128, 128, 0.2);
+}
+
+/* Default header text color fallback */
+.site-header, .site-header a, .site-header .logo {
+  color: white;
 }
 
 .header-content {
@@ -667,7 +728,7 @@ body.chill {
   font-size: 0.9em;
   font-style: italic;
   text-align: center;
-  color: #1e293b;
+  color: inherit;
   transition: transform 0.3s ease, opacity 0.3s ease;
   animation: fadeIn 1s ease-in;
 }
@@ -751,10 +812,9 @@ body.chill {
   border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 8px;
   font-weight: bold;
-  color: white;
+  color: inherit;
   cursor: pointer;
-  transition: background-color 0.3s ease;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  transition: all 0.3s ease;
 }
 
 .toggle-button.active {
@@ -764,7 +824,7 @@ body.chill {
 }
 
 .toggle-button:hover {
-  background-color: #e0e0e0;
+  background-color: rgba(255, 255, 255, 0.35);
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
@@ -782,8 +842,7 @@ body.chill {
   border: 2px solid rgba(255, 255, 255, 0.2);
   border-radius: 15px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  color: white;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  color: inherit;
 }
 
 .calc-container {
@@ -812,9 +871,9 @@ body.chill {
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
   scroll-behavior: smooth;
-  border-color: #000;
+  border-color: rgba(255, 255, 255, 0.3);
   font-weight: bold;
-  color: #000;
+  color: inherit;
 }
 
 .calc-result {
@@ -825,7 +884,7 @@ body.chill {
   border-top: none;
   border-radius: 0 0 8px 8px;
   background: rgba(255, 255, 255, 0.05);
-  color: black;
+  color: inherit;
   font-family: 'Courier New', monospace;
   font-weight: bold;
   box-sizing: border-box;
@@ -835,7 +894,7 @@ body.chill {
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
   scroll-behavior: smooth;
-  border-color: #000;
+  border-color: rgba(255, 255, 255, 0.3);
   
 }
 
@@ -1300,16 +1359,17 @@ body.chill {
     animation-duration: 0.5s !important;
     transition-duration: 0.3s !important;
   }
-  
+
   /* Simplify gradients on mobile for better performance */
-  body.chill {
+  body.chill,
+  body.chill-vibes {
     background: #f0f9ff;
   }
-  
+
   body.cyber {
     background: linear-gradient(180deg, #4b1463, #744174);
   }
-  
+
   body.sakura {
     background: linear-gradient(180deg, #fce4ec, #f8bbd9);
   }
@@ -1340,7 +1400,7 @@ body.chill {
   background: rgba(255, 255, 255, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 6px;
-  color: white;
+  color: inherit;
   cursor: pointer;
   transition: all 0.2s ease;
   min-height: 45px;
@@ -1353,6 +1413,7 @@ body.chill {
 .keypad button:last-child {
    background: rgba(34, 197, 94, 0.8);
    border-color: rgba(34, 197, 94, 0.5);
+   color: white;
 }
 
 .keypad button:last-child:hover {
@@ -1548,7 +1609,7 @@ input[type="text"], input[type="date"] {
 .calendar-tooltip {
   position: absolute;
   background: rgba(0, 0, 0, 0.8);
-  color: white;
+  color: black;
   padding: 8px 12px;
   border-radius: 6px;
   font-size: 12px;
@@ -1565,12 +1626,13 @@ input[type="text"], input[type="date"] {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 15px;
+  
 }
 
 .calendar-nav {
   background: rgba(255, 255, 255, 0.2);
   border: 2px solid rgba(255, 255, 255, 0.3);
-  color: white;
+  color: black;
   border-radius: 50%;
   width: 35px;
   height: 35px;
@@ -1589,7 +1651,7 @@ input[type="text"], input[type="date"] {
 }
 
 #calendarMonthYear {
-  color: white;
+  color: Black;
   font-size: 18px;
   margin: 0;
   flex: 1;
@@ -1606,9 +1668,11 @@ input[type="text"], input[type="date"] {
 .calendar-day-header {
   text-align: center;
   font-weight: bold;
-  color: rgba(255, 255, 255, 0.8);
+  color: inherit;
+  opacity: 0.8;
   font-size: 12px;
   padding: 8px 0;
+  color: black;
 }
 
 .calendar-days {
@@ -1626,8 +1690,9 @@ input[type="text"], input[type="date"] {
   cursor: pointer;
   border-radius: 6px;
   transition: all 0.2s ease;
-  color: white;
+  color: inherit;
   position: relative;
+  color: black;
 }
 
 .calendar-day:hover {
@@ -1654,11 +1719,11 @@ input[type="text"], input[type="date"] {
   margin-top: 15px;
   text-align: center;
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.8);
+  color: black;
 }
 
 #selectedDateDisplay {
-  color: white;
+  color: black;
   font-weight: bold;
 }
 
@@ -1816,12 +1881,19 @@ button:hover {
   border: 2px solid rgba(255, 255, 255, 0.3);
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(10px);
-  color: white;
+  color: inherit;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.feature-panel button:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2), 0 0 20px rgba(56, 189, 248, 0.4);
+  border-color: rgba(56, 189, 248, 0.5);
 }
 
 /* Glowing hover effect */
@@ -1857,6 +1929,7 @@ button:hover {
   background: rgba(56, 189, 248, 0.3);
   border-color: rgba(56, 189, 248, 0.7);
   box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+  color: white;
 }
 
 /* Responsive design */
@@ -2642,10 +2715,12 @@ position: relative;
   cursor: pointer;
   border-bottom: 1px solid #f0f0f0;
   transition: background 0.2s ease;
+  color: #000;
 }
 
 .theme-option:hover {
   background: #f5f5f5;
+  
 }
 
 .theme-option:last-child {
@@ -2795,10 +2870,49 @@ body.cyber #study-timer .timer-display p {
   color: #fff;
 }
 
-b
+/* CYBER THEME - CALENDAR TEXT COLORS */
+body.cyber #calendar {
+  color: #00ffcc;
+}
+
+body.cyber .calendar-header h3 {
+  color: #00ffff;
+}
+
+body.cyber .calendar-day-header {
+  color: #00ffcc;
+}
+
+/* MONTH HEADER (Month Year) */
+body.cyber #calendarMonthYear {
+  color: #00ffff;
+}
+
+/* SELECTED DATE TEXT */
+body.cyber #selectedDateDisplay {
+  color: #ffffff;
+  font-weight: bold;
+}
+
+body.cyber .calendar-days div {
+  color: #ffffff;
+}
+
+body.cyber .calendar-selected-date {
+  color: #00ffcc;
+}
+
+body.cyber .calendar-nav {
+  color: #00ffff;
+}
+
+
 
 body.chill-vibes {
-  background: linear-gradient(135deg, #e6e6fa, #d8bfd8, #f5deb3);
+  background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 50%, #89f7fe 100%);
+
+
+
   color: #2d3748;
 }
 
@@ -3049,16 +3163,25 @@ body.sakura .why-choose-text {
 }
 
 .shortcut-btn {
-  padding: 12px 20px;
-  background: rgba(255, 255, 255, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 8px;
+  padding: 10px 20px;
+  border: none;
+  background: rgba(255, 255, 255, 0.2);
   color: inherit;
-  font-size: 14px;
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: inherit;
-  backdrop-filter: blur(5px);
+  font-weight: 600;
+  min-width: 140px;
+}
+
+.shortcut-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.shortcut-btn:active {
+  transform: translateY(0);
 }
 
 .section {
@@ -3123,14 +3246,14 @@ body.sakura .shortcut-btn:hover {
 
 
 .module {
-  background: #ffffff; /* solid background */
-  border: 2px solid #cccccc; /* visible border */
-  border-radius: 8px; /* smooth edges */
-  box-shadow: none; /* remove floating effect */
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   padding: 20px;
   margin-bottom: 20px;
-  display: none; /* Hidden by default */
-
+  display: none;
 }
 
 /* Active state for modules - shows the module when clicked from carousel */
@@ -3603,3 +3726,4 @@ body.Sand .modal-content a:hover {
 #confirmCancel {
   background: #ccc;
 }
+

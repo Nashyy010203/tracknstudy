@@ -357,6 +357,7 @@ function setHeaderBackground(color) {
   const header = document.querySelector('.site-header');
   const body = document.body;
   
+  // Remove theme classes to avoid layering - keep only one theme
   body.classList.remove('cyber', 'chill', 'chill-vibes', 'sakura', 'Earth', 'Mist', 'Sand');
   
   header.style.backgroundColor = color;
@@ -366,18 +367,17 @@ function setHeaderBackground(color) {
   const navLinks = header.querySelectorAll('a');
   navLinks.forEach(a => a.style.color = textColor);
   const logo = header.querySelector('.logo');
-  if (logo) logo.style.color = textColor;
+  logo.style.color = textColor;
   
-  applyCardContrast();
-  
+  // Save to localStorage
   localStorage.setItem('headerBgColor', color);
-  localStorage.setItem('headerColor', color);
 }
 
 function setHomepageBackground(color) {
   const body = document.body;
   const dashboard = document.querySelector('.dashboard');
   
+  // Remove theme classes to avoid layering - keep only one theme
   body.classList.remove('cyber', 'chill', 'chill-vibes', 'sakura', 'Earth', 'Mist', 'Sand');
   
   body.style.backgroundColor = color;
@@ -385,12 +385,144 @@ function setHomepageBackground(color) {
     dashboard.style.backgroundColor = 'transparent';
   }
   const brightness = getBrightness(color);
-  body.style.color = brightness > 128 ? '#1e293b' : '#f0f0f0';
+  const textColor = brightness > 128 ? '#000' : '#fff';
+  body.style.color = textColor;
   
-  applyCardContrast();
+  // Also update feature buttons and sections based on background
+  updateFeatureElementsForBackground(brightness);
   
+  // Save to localStorage
   localStorage.setItem('homepageBgColor', color);
-  localStorage.setItem('bgColor', color);
+}
+
+function updateFeatureElementsForBackground(brightness) {
+  const sections = document.querySelectorAll('.section');
+  const featureButtons = document.querySelectorAll('.toggle-button');
+  const calcSections = document.querySelectorAll('.calc-container, .section');
+  const keypadButtons = document.querySelectorAll('.keypad button');
+  const calcControls = document.querySelectorAll('.calc-controls button');
+  const featurePanelBtns = document.querySelectorAll('.feature-panel button');
+  const shortcutBtns = document.querySelectorAll('.shortcut-btn');
+  const dockBtns = document.querySelectorAll('.dock-btn');
+  const moduleCards = document.querySelectorAll('.module');
+  const quoteElements = document.querySelectorAll('.quote');
+  
+  const isDark = brightness < 128;
+  
+  // Update sections
+  sections.forEach(section => {
+    if (isDark) {
+      section.style.color = '#fff';
+      section.style.background = 'rgba(255, 255, 255, 0.1)';
+      section.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+    } else {
+      section.style.color = '#000';
+      section.style.background = 'rgba(0, 0, 0, 0.05)';
+      section.style.borderColor = 'rgba(0, 0, 0, 0.1)';
+    }
+  });
+  
+  // Update feature toggle buttons
+  featureButtons.forEach(btn => {
+    if (isDark) {
+      btn.style.color = '#fff';
+      btn.style.background = 'rgba(255, 255, 255, 0.15)';
+      btn.style.borderColor = 'rgba(255, 255, 255, 0.25)';
+    } else {
+      btn.style.color = '#000';
+      btn.style.background = 'rgba(0, 0, 0, 0.05)';
+      btn.style.borderColor = 'rgba(0, 0, 0, 0.15)';
+    }
+  });
+  
+  // Update calculator display
+  calcSections.forEach(el => {
+    const calcExpr = el.querySelector('.calc-expression');
+    const calcResult = el.querySelector('.calc-result');
+    if (calcExpr) {
+      calcExpr.style.color = isDark ? '#fff' : '#000';
+    }
+    if (calcResult) {
+      calcResult.style.color = isDark ? '#fff' : '#000';
+    }
+  });
+  
+  // Update keypad buttons
+  keypadButtons.forEach(btn => {
+    if (isDark) {
+      btn.style.color = '#fff';
+      btn.style.background = 'rgba(255, 255, 255, 0.15)';
+    } else {
+      btn.style.color = '#000';
+      btn.style.background = 'rgba(0, 0, 0, 0.05)';
+    }
+  });
+  
+  // Update calc controls (clear, equals)
+  calcControls.forEach(btn => {
+    if (isDark) {
+      btn.style.color = '#fff';
+      btn.style.background = 'rgba(255, 255, 255, 0.15)';
+    } else {
+      btn.style.color = '#000';
+      btn.style.background = 'rgba(0, 0, 0, 0.05)';
+    }
+  });
+  
+  // Update feature panel buttons
+  featurePanelBtns.forEach(btn => {
+    if (isDark) {
+      btn.style.color = '#fff';
+      btn.style.background = 'rgba(255, 255, 255, 0.15)';
+      btn.style.borderColor = 'rgba(255, 255, 255, 0.25)';
+    } else {
+      btn.style.color = '#000';
+      btn.style.background = 'rgba(0, 0, 0, 0.05)';
+      btn.style.borderColor = 'rgba(0, 0, 0, 0.15)';
+    }
+  });
+  
+  // Update shortcut buttons
+  shortcutBtns.forEach(btn => {
+    if (isDark) {
+      btn.style.color = '#fff';
+      btn.style.background = 'rgba(255, 255, 255, 0.15)';
+      btn.style.borderColor = 'rgba(255, 255, 255, 0.25)';
+    } else {
+      btn.style.color = '#000';
+      btn.style.background = 'rgba(0, 0, 0, 0.05)';
+      btn.style.borderColor = 'rgba(0, 0, 0, 0.15)';
+    }
+  });
+  
+  // Update dock buttons
+  dockBtns.forEach(btn => {
+    if (isDark) {
+      btn.style.color = '#fff';
+      btn.style.background = 'rgba(255, 255, 255, 0.1)';
+    } else {
+      btn.style.color = '#000';
+      btn.style.background = 'rgba(0, 0, 0, 0.05)';
+    }
+  });
+  
+  // Update module cards
+  moduleCards.forEach(card => {
+    if (isDark) {
+      card.style.color = '#fff';
+    } else {
+      card.style.color = '#000';
+    }
+  });
+  
+  // Update quotes
+  quoteElements.forEach(quote => {
+    if (isDark) {
+      quote.style.color = '#e0e0e0';
+    } else {
+      quote.style.color = '#333';
+    }
+  });
 }
 
 function getBrightness(hex) {
@@ -400,168 +532,55 @@ function getBrightness(hex) {
   return (r*299 + g*587 + b*114) / 1000;
 }
 
-function applyCardContrast() {
-  const bgColor = document.body.style.backgroundColor || getComputedStyle(document.body).backgroundColor;
-  const headerColor = document.querySelector('.site-header').style.backgroundColor || getComputedStyle(document.querySelector('.site-header')).backgroundColor;
-  
-  let bgBrightness = 128;
-  if (bgColor && bgColor !== 'transparent' && bgColor.startsWith('rgb')) {
-    const match = bgColor.match(/\d+/g);
-    if (match && match.length >= 3) {
-      bgBrightness = (parseInt(match[0]) * 299 + parseInt(match[1]) * 587 + parseInt(match[2]) * 114) / 1000;
-    }
-  }
-  
-  const isDarkBg = bgBrightness < 128;
-  const modules = document.querySelectorAll('.module');
-  const shortcuts = document.querySelectorAll('.shortcut-btn');
-  const sections = document.querySelectorAll('.section');
-  const toolGrid = document.querySelectorAll('.tool-grid .module');
-  
-  modules.forEach(mod => {
-    if (isDarkBg) {
-      mod.style.background = 'rgba(255,255,255,0.1)';
-      mod.style.borderColor = 'rgba(255,255,255,0.2)';
-      mod.style.color = '#f0f0f0';
-    } else {
-      mod.style.background = 'rgba(255,255,255,0.9)';
-      mod.style.borderColor = 'rgba(0,0,0,0.1)';
-      mod.style.color = '#1e293b';
-    }
-  });
-  
-  shortcuts.forEach(btn => {
-    btn.style.background = isDarkBg ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.9)';
-    btn.style.color = isDarkBg ? '#fff' : '#1e293b';
-    btn.style.borderColor = isDarkBg ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.1)';
-  });
-  
-  sections.forEach(sec => {
-    if (isDarkBg) {
-      sec.style.background = 'rgba(255,255,255,0.1)';
-      sec.style.borderColor = 'rgba(255,255,255,0.2)';
-      sec.style.color = '#fff';
-    } else {
-      sec.style.background = 'rgba(255,255,255,0.9)';
-      sec.style.borderColor = 'rgba(0,0,0,0.1)';
-      sec.style.color = '#1e293b';
-    }
-  });
-  
-  toolGrid.forEach(mod => {
-    if (isDarkBg) {
-      mod.style.background = 'rgba(255,255,255,0.1)';
-      mod.style.borderColor = 'rgba(255,255,255,0.2)';
-      mod.style.color = '#f0f0f0';
-    } else {
-      mod.style.background = 'rgba(255,255,255,0.9)';
-      mod.style.borderColor = 'rgba(0,0,0,0.1)';
-      mod.style.color = '#1e293b';
-    }
-  });
-}
-
-function saveTheme() {
-  const bgColor = document.body.style.backgroundColor;
-  const headerColor = document.querySelector('.site-header').style.backgroundColor;
-  
-  if (bgColor) {
-    localStorage.setItem('bgColor', bgColor);
-    localStorage.setItem('homepageBgColor', bgColor);
-  }
-  if (headerColor) {
-    localStorage.setItem('headerColor', headerColor);
-    localStorage.setItem('headerBgColor', headerColor);
-  }
-}
-
-function loadTheme() {
-  const savedBgColor = localStorage.getItem('bgColor') || localStorage.getItem('homepageBgColor');
-  const savedHeaderColor = localStorage.getItem('headerColor') || localStorage.getItem('headerBgColor');
-  const savedTheme = localStorage.getItem('selectedTheme');
-  
-  if (savedTheme && savedTheme !== 'custom') {
-    document.body.style.backgroundColor = '';
-    document.body.style.background = '';
-    const dashboard = document.querySelector('.dashboard');
-    if (dashboard) dashboard.style.backgroundColor = 'transparent';
-    const header = document.querySelector('.site-header');
-    if (header) header.style.backgroundColor = '';
-    
-    setTheme(savedTheme);
-    return;
-  }
-  
-  document.body.classList.remove('chill', 'cyber', 'chill-vibes', 'sakura', 'Earth', 'Mist', 'Sand');
-  
-  if (savedHeaderColor) {
-    setHeaderBackground(savedHeaderColor);
-    const picker = document.getElementById('headerBgColorPicker');
-    if (picker) picker.value = savedHeaderColor;
-  }
-  
-  if (savedBgColor) {
-    setHomepageBackground(savedBgColor);
-    const picker = document.getElementById('homepageBgColorPicker');
-    if (picker) picker.value = savedBgColor;
-  }
-}
-
 function setTheme(theme) {
   const body = document.body;
   const dashboard = document.querySelector('.dashboard');
   const header = document.querySelector('.site-header');
 
-  const isUnlocked = localStorage.getItem("themesUnlocked") === "true";
+  // 🔒 THEME LOCK CHECK
+const isUnlocked = localStorage.getItem("themesUnlocked") === "true";
 
 if (theme !== 'cyber' && !isUnlocked) {
+  alert("🔒 Locked!\n\nTo unlock:\n✔ Get 100% score\n✔ At least 20 questions");
   return;
 }
-   
+  
+  // Map theme names to correct class names
   const themeMap = {
     'cyber': 'cyber',
     'chill-vibes': 'chill-vibes',
-    'chill': 'chill',
+    'chill': 'chill',  // Keep 'chill' as is
     'sakura': 'sakura',
     'Earth': 'Earth',
     'Mist': 'Mist',
     'Sand': 'Sand'
   };
-   
-  const validTheme = themeMap[theme] || 'chill';
-   
+  
+  const validTheme = themeMap[theme] || 'cyber';
+  
+  // Remove existing theme classes - only keep chill or cyber (not both)
   body.classList.remove('chill', 'cyber', 'chill-vibes', 'sakura', 'Earth', 'Mist', 'Sand');
-   
+  
+  // Reset inline styles to avoid layering
   body.style.backgroundColor = '';
-  body.style.background = '';
   if (dashboard) {
     dashboard.style.backgroundColor = 'transparent';
   }
   if (header) {
     header.style.backgroundColor = '';
   }
-   
-  body.classList.add(validTheme);
-   
-  localStorage.setItem('selectedTheme', validTheme);
   
-  setTimeout(() => {
-    applyCardContrast();
-  }, 100);
+  // Add new theme class
+  body.classList.add(validTheme);
+  
+  // Save to localStorage
+  localStorage.setItem('selectedTheme', validTheme);
 }
 
 function resetCustomizations() {
-  localStorage.removeItem('bgColor');
-  localStorage.removeItem('headerColor');
-  localStorage.removeItem('homepageBgColor');
-  localStorage.removeItem('headerBgColor');
-  localStorage.removeItem('selectedTheme');
-  
   setTheme('chill');
   document.getElementById('headerBgColorPicker').value = '#008080';
   document.getElementById('homepageBgColorPicker').value = '#ffffff';
-  
-  applyCardContrast();
 }
 
 // Close profile dropdown when clicking outside
@@ -663,40 +682,12 @@ function deleteNotification(id) {
 
 function deleteAll() {
   showConfirm("Are you sure you want to delete all notifications?", () => {
-
-    // ilipat lang sa history (optional kung meron ka)
     deletedNotifications.push(...notifications);
-
-    // clear current notifications array
     notifications = [];
-
-    // SAVE (eto importante)
-    saveNotifications();
-
-    // UI update
     updateNotificationBadge();
     renderNotifications();
-
+    saveNotifications();
   });
-}
-
-function showConfirm(message, onOk) {
-  const modal = document.getElementById("confirmModal");
-  const msg = document.getElementById("confirmMessage");
-  const okBtn = document.getElementById("confirmOk");
-  const cancelBtn = document.getElementById("confirmCancel");
-
-  msg.textContent = message;
-  modal.classList.add("show");
-
-  okBtn.onclick = () => {
-    modal.classList.remove("show");
-    onOk();
-  };
-
-  cancelBtn.onclick = () => {
-    modal.classList.remove("show");
-  };
 }
 
 function showHistory() {
@@ -732,13 +723,11 @@ function deleteHistoryItem(index) {
 }
 
 function clearHistory() {
-  const confirmClear = confirm("Delete all history?");
-  
-  if (confirmClear) {
+  showConfirm("Delete all history?", () => {
     deletedNotifications = [];
     saveNotifications();
     showHistory();
-  }
+  });
 }
 
 // Close notification dropdown when clicking outside
@@ -1034,6 +1023,7 @@ function toggleTool(toolName) {
 function setCustomBackground(color) {
   const dashboard = document.querySelector('.dashboard');
   const body = document.body;
+  const header = document.querySelector('.site-header');
   const profilePanel = document.getElementById('profilePanel');
   const userNameInput = document.getElementById('userName');
   if (!dashboard) return;
@@ -1058,6 +1048,16 @@ function setCustomBackground(color) {
       userNameInput.style.color = '#1e293b';
     }
 
+    // Reset header if it was customized
+    if (header) {
+      header.style.backgroundColor = '';
+      header.style.color = '';
+      const navLinks = header.querySelectorAll('a');
+      navLinks.forEach(a => a.style.color = '');
+      const logo = header.querySelector('.logo');
+      if (logo) logo.style.color = '';
+    }
+
     // Reset title contrast
     adjustTitleContrast();
     return;
@@ -1072,13 +1072,28 @@ function setCustomBackground(color) {
   const rgb = hexToRgb(color);
   if (!rgb) return;
   const brightness = (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
-  if (brightness < 128) {
+  const isDark = brightness < 128;
+  
+  if (isDark) {
     // Dark background - set light font color
     dashboard.style.color = '#f0f0f0';
   } else {
     // Light background - set dark font color
     dashboard.style.color = '#1e293b';
   }
+  
+  // Also update header and all feature elements
+  if (header) {
+    const textColor = isDark ? '#fff' : '#000';
+    header.style.color = textColor;
+    const navLinks = header.querySelectorAll('a');
+    navLinks.forEach(a => a.style.color = textColor);
+    const logo = header.querySelector('.logo');
+    if (logo) logo.style.color = textColor;
+  }
+  
+  // Update all feature elements (buttons, sections, etc.)
+  updateFeatureElementsForBackground(brightness);
 
   // Adjust profile panel colors based on background
   if (profilePanel) {
@@ -1127,6 +1142,7 @@ function hexToRgb(hex) {
 }
 
 window.addEventListener("DOMContentLoaded", () => {
+  // Check if user is logged in
   const currentUser = localStorage.getItem("currentUser");
   if (currentUser) {
     const user = JSON.parse(currentUser);
@@ -1134,10 +1150,12 @@ window.addEventListener("DOMContentLoaded", () => {
     document.getElementById("userName").placeholder = "Welcome, " + user.fullName;
   }
 
+  // Load saved data
   const savedName = localStorage.getItem("userName");
   const customAvatar = localStorage.getItem("customAvatar");
   const savedColor = localStorage.getItem("customBgColor");
 
+  // Load session log
   loadSessionLog();
 
   if (savedName && !currentUser) document.getElementById("userName").value = savedName;
@@ -1149,6 +1167,7 @@ window.addEventListener("DOMContentLoaded", () => {
     document.body.style.backgroundColor = savedColor;
   }
 
+  // Set min date for inputs to prevent past dates
   const today = new Date().toISOString().split('T')[0];
   const assignmentDate = document.getElementById('assignmentDate');
   const taskDate = document.getElementById('taskDate');
@@ -1156,16 +1175,32 @@ window.addEventListener("DOMContentLoaded", () => {
   if (assignmentDate) assignmentDate.min = today;
   if (taskDate) taskDate.min = today;
 
+
+  // Initialize calendar
   renderCalendar();
+
+  // Initialize title contrast adjustment
   adjustTitleContrast();
 
-  loadTheme();
-  
-  if (document.getElementById('headerBgColorPicker')) {
-    document.getElementById('headerBgColorPicker').value = '#008080';
+  // Initialize customization pickers
+  document.getElementById('headerBgColorPicker').value = '#008080';
+  document.getElementById('homepageBgColorPicker').value = '#ffffff';
+
+  // Load saved theme
+  const savedTheme = localStorage.getItem('selectedTheme') || 'chill-vibes';
+  setTheme(savedTheme);
+  document.getElementById('themeSelector').value = savedTheme;
+
+  // Load saved custom colors
+  const savedHeaderColor = localStorage.getItem('headerBgColor');
+  if (savedHeaderColor) {
+    setHeaderBackground(savedHeaderColor);
+    document.getElementById('headerBgColorPicker').value = savedHeaderColor;
   }
-  if (document.getElementById('homepageBgColorPicker')) {
-    document.getElementById('homepageBgColorPicker').value = '#ffffff';
+  const savedHomepageColor = localStorage.getItem('homepageBgColor');
+  if (savedHomepageColor) {
+    setHomepageBackground(savedHomepageColor);
+    document.getElementById('homepageBgColorPicker').value = savedHomepageColor;
   }
 });
 
@@ -2744,3 +2779,28 @@ function saveAssignmentProgress() {
   const completed = assignments.filter(a => a.completed).length;
   localStorage.setItem("completedAssignments", completed);
 }
+
+// ===== CUSTOM CONFIRM MODAL =====
+let confirmCallback = null;
+
+function showConfirm(message, onConfirm) {
+  const modal = document.getElementById("confirmModal");
+  const msg = document.getElementById("confirmMessage");
+
+  msg.textContent = message;
+  modal.classList.add("show");
+
+  confirmCallback = onConfirm;
+}
+
+// OK button
+document.getElementById("confirmOk").addEventListener("click", () => {
+  document.getElementById("confirmModal").classList.remove("show");
+  if (confirmCallback) confirmCallback();
+});
+
+// Cancel button
+document.getElementById("confirmCancel").addEventListener("click", () => {
+  document.getElementById("confirmModal").classList.remove("show");
+  confirmCallback = null;
+});
