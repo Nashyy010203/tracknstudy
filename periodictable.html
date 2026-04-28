@@ -413,12 +413,12 @@
     function getGridPosition(group, period, atomicNumber) {
   // Lanthanides (57–71)
   if (atomicNumber >= 57 && atomicNumber <= 71) {
-    return { col: atomicNumber - 57 + 4, row: 9 };
+    return { col: atomicNumber - 57 + 3, row: 9 };
   }
 
   // Actinides (89–103)
   if (atomicNumber >= 89 && atomicNumber <= 103) {
-    return { col: atomicNumber - 89 + 4, row: 10 };
+    return { col: atomicNumber - 89 + 3, row: 10 };
   }
 
   // Normal placement
