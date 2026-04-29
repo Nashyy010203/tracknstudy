@@ -410,12 +410,20 @@
       };
     }
 
-    function getGridPosition(group, period) {
-      if (period === 8) return { col: group - 3 + 2, row: 5 };
-      if (period === 9) return { col: group - 3 + 2, row: 6 };
-      if (group >= 3 && period >= 1) return { col: group, row: period };
-      return { col: group || 1, row: period };
-    }
+    function getGridPosition(group, period, atomicNumber) {
+  // Lanthanides (57–71)
+  if (atomicNumber >= 57 && atomicNumber <= 71) {
+    return { col: atomicNumber - 57 + 4, row: 9 };
+  }
+
+  // Actinides (89–103)
+  if (atomicNumber >= 89 && atomicNumber <= 103) {
+    return { col: atomicNumber - 89 + 4, row: 10 };
+  }
+
+  // Normal placement
+  return { col: group || 1, row: period };
+}
 
     const elementMap = new Map();
 
