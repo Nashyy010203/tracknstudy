@@ -1228,26 +1228,19 @@ const savedTheme = localStorage.getItem('selectedTheme') || 'sakura';
 setTheme(savedTheme);
 document.getElementById('themeSelector').value = savedTheme;
 
- // IMPORTANT: apply custom/default colors AFTER theme
-  setTimeout(() => {
-    const savedHeaderColor = localStorage.getItem('headerBgColor');
-    const savedHomepageColor = localStorage.getItem('homepageBgColor');
+// Apply saved custom colors ONLY if meron talagang naka-save
+setTimeout(() => {
+  const savedHeaderColor = localStorage.getItem('headerBgColor');
+  const savedHomepageColor = localStorage.getItem('homepageBgColor');
 
-    // Header default: dark gray (#374151)
-    if (savedHeaderColor) {
-      setHeaderBackground(savedHeaderColor);
-    } else {
-      setHeaderBackground('#374151');
-    }
+  if (savedHeaderColor) {
+    setHeaderBackground(savedHeaderColor);
+  }
 
-    // Homepage default: medium dark gray (#6b7280)
-    if (savedHomepageColor) {
-      setHomepageBackground(savedHomepageColor);
-    } else {
-      setHomepageBackground('#6b7280');
-    }
-  }, 50);
-
+  if (savedHomepageColor) {
+    setHomepageBackground(savedHomepageColor);
+  }
+}, 50);
 
 });
 
