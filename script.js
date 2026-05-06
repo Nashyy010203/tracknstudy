@@ -577,7 +577,7 @@ function setTheme(theme) {
   // 🔒 THEME LOCK CHECK
 const isUnlocked = localStorage.getItem("themesUnlocked") === "true";
 
-if (theme !== 'cyber' && !isUnlocked) {
+if (theme !== 'sakura' && !isUnlocked) {
   alert("🔒 Locked!\n\nTo unlock:\n✔ Get 100% score\n✔ At least 20 questions");
   return;
 }
@@ -593,7 +593,7 @@ if (theme !== 'cyber' && !isUnlocked) {
     'Sand': 'Sand'
   };
   
-  const validTheme = themeMap[theme] || 'cyber';
+  const validTheme = themeMap[theme] || 'sakura';
   
   // Remove existing theme classes - only keep chill or cyber (not both)
   body.classList.remove('chill', 'cyber', 'chill-vibes', 'sakura', 'Earth', 'Mist', 'Sand');
@@ -1224,7 +1224,7 @@ window.addEventListener("DOMContentLoaded", () => {
   document.getElementById('homepageBgColorPicker').value = '#6b7280';
 
   // Load saved theme
-const savedTheme = localStorage.getItem('selectedTheme') || 'cyber';
+const savedTheme = localStorage.getItem('selectedTheme') || 'sakura';
 setTheme(savedTheme);
 document.getElementById('themeSelector').value = savedTheme;
 
