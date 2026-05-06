@@ -369,6 +369,10 @@ function setHeaderBackground(color) {
   const logo = header.querySelector('.logo');
   logo.style.color = textColor;
   
+  // Also update feature elements based on header brightness
+  // This ensures icons/buttons in header match
+  updateFeatureElementsForBackground(brightness);
+  
   // Save to localStorage
   localStorage.setItem('headerBgColor', color);
 }
@@ -404,125 +408,158 @@ function updateFeatureElementsForBackground(brightness) {
   const featurePanelBtns = document.querySelectorAll('.feature-panel button');
   const shortcutBtns = document.querySelectorAll('.shortcut-btn');
   const dockBtns = document.querySelectorAll('.dock-btn');
+  const dockToggle = document.querySelector('.dock-toggle');
   const moduleCards = document.querySelectorAll('.module');
   const quoteElements = document.querySelectorAll('.quote');
+  const calendarDays = document.querySelectorAll('.calendar-day');
+  const calendarDayHeaders = document.querySelectorAll('.calendar-day-header');
+  const calendarNavs = document.querySelectorAll('.calendar-nav');
+  const timerDisplays = document.querySelectorAll('#timerDisplay, #timerMode');
+  const sessionLogs = document.querySelectorAll('.session-log h4, .session-log li');
+  const motivationalQuotes = document.querySelectorAll('.motivational-quote');
+  const calcExpressions = document.querySelectorAll('.calc-expression');
+  const calcResults = document.querySelectorAll('.calc-result');
+  const calcSessionLogs = document.querySelectorAll('.session-log h4, .session-log li');
   
   const isDark = brightness < 128;
+  const textColor = isDark ? '#fff' : '#000';
+  const mutedTextColor = isDark ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)';
+  const borderColor = isDark ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.15)';
+  const sectionBg = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)';
+  const buttonBg = isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.05)';
+  const buttonHoverBg = isDark ? 'rgba(255, 255, 255, 0.25)' : 'rgba(0, 0, 0, 0.1)';
+  const inputBg = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)';
+  const cardColor = isDark ? '#fff' : '#000';
+  const quoteColor = isDark ? '#e0e0e0' : '#333';
   
   // Update sections
   sections.forEach(section => {
-    if (isDark) {
-      section.style.color = '#fff';
-      section.style.background = 'rgba(255, 255, 255, 0.1)';
-      section.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-    } else {
-      section.style.color = '#000';
-      section.style.background = 'rgba(0, 0, 0, 0.05)';
-      section.style.borderColor = 'rgba(0, 0, 0, 0.1)';
-    }
+    section.style.color = textColor;
+    section.style.background = sectionBg;
+    section.style.borderColor = borderColor;
   });
   
   // Update feature toggle buttons
   featureButtons.forEach(btn => {
-    if (isDark) {
-      btn.style.color = '#fff';
-      btn.style.background = 'rgba(255, 255, 255, 0.15)';
-      btn.style.borderColor = 'rgba(255, 255, 255, 0.25)';
-    } else {
-      btn.style.color = '#000';
-      btn.style.background = 'rgba(0, 0, 0, 0.05)';
-      btn.style.borderColor = 'rgba(0, 0, 0, 0.15)';
-    }
-  });
-  
-  // Update calculator display
-  calcSections.forEach(el => {
-    const calcExpr = el.querySelector('.calc-expression');
-    const calcResult = el.querySelector('.calc-result');
-    if (calcExpr) {
-      calcExpr.style.color = isDark ? '#fff' : '#000';
-    }
-    if (calcResult) {
-      calcResult.style.color = isDark ? '#fff' : '#000';
-    }
-  });
-  
-  // Update keypad buttons
-  keypadButtons.forEach(btn => {
-    if (isDark) {
-      btn.style.color = '#fff';
-      btn.style.background = 'rgba(255, 255, 255, 0.15)';
-    } else {
-      btn.style.color = '#000';
-      btn.style.background = 'rgba(0, 0, 0, 0.05)';
-    }
-  });
-  
-  // Update calc controls (clear, equals)
-  calcControls.forEach(btn => {
-    if (isDark) {
-      btn.style.color = '#fff';
-      btn.style.background = 'rgba(255, 255, 255, 0.15)';
-    } else {
-      btn.style.color = '#000';
-      btn.style.background = 'rgba(0, 0, 0, 0.05)';
-    }
+    btn.style.color = textColor;
+    btn.style.background = buttonBg;
+    btn.style.borderColor = borderColor;
   });
   
   // Update feature panel buttons
   featurePanelBtns.forEach(btn => {
-    if (isDark) {
-      btn.style.color = '#fff';
-      btn.style.background = 'rgba(255, 255, 255, 0.15)';
-      btn.style.borderColor = 'rgba(255, 255, 255, 0.25)';
-    } else {
-      btn.style.color = '#000';
-      btn.style.background = 'rgba(0, 0, 0, 0.05)';
-      btn.style.borderColor = 'rgba(0, 0, 0, 0.15)';
+    if (!btn.classList.contains('active')) {
+      btn.style.color = textColor;
+      btn.style.background = buttonBg;
+      btn.style.borderColor = borderColor;
     }
   });
   
   // Update shortcut buttons
   shortcutBtns.forEach(btn => {
-    if (isDark) {
-      btn.style.color = '#fff';
-      btn.style.background = 'rgba(255, 255, 255, 0.15)';
-      btn.style.borderColor = 'rgba(255, 255, 255, 0.25)';
-    } else {
-      btn.style.color = '#000';
-      btn.style.background = 'rgba(0, 0, 0, 0.05)';
-      btn.style.borderColor = 'rgba(0, 0, 0, 0.15)';
-    }
+    btn.style.color = textColor;
+    btn.style.background = buttonBg;
+    btn.style.borderColor = borderColor;
   });
   
   // Update dock buttons
   dockBtns.forEach(btn => {
-    if (isDark) {
-      btn.style.color = '#fff';
-      btn.style.background = 'rgba(255, 255, 255, 0.1)';
-    } else {
-      btn.style.color = '#000';
-      btn.style.background = 'rgba(0, 0, 0, 0.05)';
-    }
+    btn.style.color = textColor;
   });
+  
+  // Update dock toggle
+  if (dockToggle) {
+    dockToggle.style.color = textColor;
+  }
   
   // Update module cards
   moduleCards.forEach(card => {
-    if (isDark) {
-      card.style.color = '#fff';
-    } else {
-      card.style.color = '#000';
-    }
+    card.style.color = cardColor;
   });
   
   // Update quotes
   quoteElements.forEach(quote => {
-    if (isDark) {
-      quote.style.color = '#e0e0e0';
-    } else {
-      quote.style.color = '#333';
+    quote.style.color = quoteColor;
+  });
+  
+  // Update calculator display and result
+  calcExpressions.forEach(el => {
+    el.style.color = textColor;
+  });
+  calcResults.forEach(el => {
+    el.style.color = textColor;
+  });
+  
+  // Update keypad buttons
+  keypadButtons.forEach(btn => {
+    btn.style.color = textColor;
+    if (!btn.classList.contains('equals-btn')) {
+      btn.style.background = buttonBg;
     }
   });
+  
+  // Update calc controls (clear, equals)
+  calcControls.forEach(btn => {
+    btn.style.color = textColor;
+    if (btn.id !== 'modeBtn') {
+      btn.style.background = 'rgba(239, 68, 68, 0.8)';
+      btn.style.borderColor = 'rgba(239, 68, 68, 0.5)';
+    }
+  });
+  
+  // Update calendar days
+  calendarDays.forEach(day => {
+    day.style.color = textColor;
+  });
+  
+  // Update calendar day headers
+  calendarDayHeaders.forEach(header => {
+    header.style.color = textColor;
+  });
+  
+  // Update calendar nav buttons
+  calendarNavs.forEach(nav => {
+    nav.style.color = textColor;
+  });
+  
+  // Update timer displays
+  timerDisplays.forEach(display => {
+    display.style.color = textColor;
+  });
+  
+  // Update session logs
+  sessionLogs.forEach(log => {
+    log.style.color = textColor;
+  });
+  
+  // Update motivational quotes
+  motivationalQuotes.forEach(quote => {
+    quote.style.color = textColor;
+  });
+  
+  // Update nav menu links
+  const navLinks = document.querySelectorAll('.nav-menu a, .logo, .site-header');
+  navLinks.forEach(link => {
+    link.style.color = textColor;
+  });
+  
+  // Update profile panel if it exists
+  const profilePanel = document.getElementById('profilePanel');
+  if (profilePanel) {
+    const panelBg = isDark ? '#2a2a2a' : '#f0f9ff';
+    const panelText = isDark ? '#f0f0f0' : '#1e293b';
+    profilePanel.style.backgroundColor = panelBg;
+    profilePanel.style.color = panelText;
+  }
+  
+  // Update userName input
+  const userNameInput = document.getElementById('userName');
+  if (userNameInput) {
+    const inputBgColor = isDark ? '#f0f0f0' : '#2a2a2a';
+    const inputTextColor = isDark ? '#1e293b' : '#f0f0f0';
+    userNameInput.style.backgroundColor = inputBgColor;
+    userNameInput.style.color = inputTextColor;
+  }
 }
 
 function getBrightness(hex) {
@@ -579,8 +616,8 @@ if (theme !== 'cyber' && !isUnlocked) {
 
 function resetCustomizations() {
   setTheme('chill');
-  document.getElementById('headerBgColorPicker').value = '#008080';
-  document.getElementById('homepageBgColorPicker').value = '#ffffff';
+  document.getElementById('headerBgColorPicker').value = '#374151';
+  document.getElementById('homepageBgColorPicker').value = '#9ca3af';
 }
 
 // Close profile dropdown when clicking outside
@@ -1183,25 +1220,35 @@ window.addEventListener("DOMContentLoaded", () => {
   adjustTitleContrast();
 
   // Initialize customization pickers
-  document.getElementById('headerBgColorPicker').value = '#008080';
-  document.getElementById('homepageBgColorPicker').value = '#ffffff';
+  document.getElementById('headerBgColorPicker').value = '#374151';
+  document.getElementById('homepageBgColorPicker').value = '#6b7280';
 
   // Load saved theme
-  const savedTheme = localStorage.getItem('selectedTheme') || 'chill-vibes';
-  setTheme(savedTheme);
-  document.getElementById('themeSelector').value = savedTheme;
+const savedTheme = localStorage.getItem('selectedTheme') || 'cyber';
+setTheme(savedTheme);
+document.getElementById('themeSelector').value = savedTheme;
 
-  // Load saved custom colors
-  const savedHeaderColor = localStorage.getItem('headerBgColor');
-  if (savedHeaderColor) {
-    setHeaderBackground(savedHeaderColor);
-    document.getElementById('headerBgColorPicker').value = savedHeaderColor;
-  }
-  const savedHomepageColor = localStorage.getItem('homepageBgColor');
-  if (savedHomepageColor) {
-    setHomepageBackground(savedHomepageColor);
-    document.getElementById('homepageBgColorPicker').value = savedHomepageColor;
-  }
+ // IMPORTANT: apply custom/default colors AFTER theme
+  setTimeout(() => {
+    const savedHeaderColor = localStorage.getItem('headerBgColor');
+    const savedHomepageColor = localStorage.getItem('homepageBgColor');
+
+    // Header default: dark gray (#374151)
+    if (savedHeaderColor) {
+      setHeaderBackground(savedHeaderColor);
+    } else {
+      setHeaderBackground('#374151');
+    }
+
+    // Homepage default: medium dark gray (#6b7280)
+    if (savedHomepageColor) {
+      setHomepageBackground(savedHomepageColor);
+    } else {
+      setHomepageBackground('#6b7280');
+    }
+  }, 50);
+
+
 });
 
 // Add logout functionality
@@ -1656,8 +1703,7 @@ function resetNotes() {
 // CALENDAR FUNCTIONS with Integration
 let currentCalendarDate = new Date();
 let calendarEvents = [];
-
-function renderCalendar() {
+function renderCalendar () {
   const calendarDays = document.getElementById('calendarDays');
   const monthYearDisplay = document.getElementById('calendarMonthYear');
 
@@ -1725,7 +1771,10 @@ function renderCalendar() {
       dayElement.onmouseleave = hideTooltip;
     }
 
-    dayElement.onclick = () => selectDate(day);
+    dayElement.onclick = (e) => {
+  e.stopPropagation();
+  selectDate(day);
+};
     calendarDays.appendChild(dayElement);
   }
 }
