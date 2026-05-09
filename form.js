@@ -28,7 +28,7 @@ nameInputs.forEach(input => {
 // Limit email input
 const emailInputs = document.querySelectorAll('input[type="email"]');
 emailInputs.forEach(input => {
-    input.setAttribute('maxlength', '20');
+    input.setAttribute('maxlength', '30');
 });
 
 // Password validation

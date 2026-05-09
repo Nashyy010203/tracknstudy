@@ -776,6 +776,14 @@ document.addEventListener('click', function(event) {
   }
 });
 
+// Close module function
+function closeModule(moduleId) {
+  const module = document.getElementById(moduleId);
+  if (module) {
+    module.classList.remove('active');
+  }
+}
+
 //dito langggggggggggggggggggggggggggggggggggg
 
 function uploadAvatar(event) {
@@ -1228,19 +1236,26 @@ const savedTheme = localStorage.getItem('selectedTheme') || 'sakura';
 setTheme(savedTheme);
 document.getElementById('themeSelector').value = savedTheme;
 
-// Apply saved custom colors ONLY if meron talagang naka-save
-setTimeout(() => {
-  const savedHeaderColor = localStorage.getItem('headerBgColor');
-  const savedHomepageColor = localStorage.getItem('homepageBgColor');
+ // IMPORTANT: apply custom/default colors AFTER theme
+  setTimeout(() => {
+    const savedHeaderColor = localStorage.getItem('headerBgColor');
+    const savedHomepageColor = localStorage.getItem('homepageBgColor');
 
-  if (savedHeaderColor) {
-    setHeaderBackground(savedHeaderColor);
-  }
+    // Header default: dark gray (#374151)
+    if (savedHeaderColor) {
+      setHeaderBackground(savedHeaderColor);
+    } else {
+      setHeaderBackground('#374151');
+    }
 
-  if (savedHomepageColor) {
-    setHomepageBackground(savedHomepageColor);
-  }
-}, 50);
+    // Homepage default: medium dark gray (#6b7280)
+    if (savedHomepageColor) {
+      setHomepageBackground(savedHomepageColor);
+    } else {
+      setHomepageBackground('#6b7280');
+    }
+  }, 50);
+
 
 });
 
@@ -1253,10 +1268,10 @@ function logout() {
 
 function showSection(sectionId) {
   const sections = document.querySelectorAll('.section');
-  sections.forEach(section => section.style.display = 'none');
+  sections.forEach(section => section.classList.remove('active'));
 
   const targetSection = document.getElementById(sectionId);
-  targetSection.style.display = 'block';
+  targetSection.classList.add('active');
 
   // Smooth scroll to the section
   targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1317,7 +1332,7 @@ document.addEventListener('click', function(event) {
     buttons.forEach(btn => btn.classList.remove('active'));
 
     // Hide all sections
-    sections.forEach(section => section.style.display = 'none');
+    sections.forEach(section => section.classList.remove('active'));
   }
 });
 
@@ -1620,7 +1635,7 @@ document.addEventListener('keydown', function(event) {
 
    // Check if calculator section is visible
    const calculatorSection = document.getElementById('calculator');
-   if (!calculatorSection || calculatorSection.style.display === 'none') {
+   if (!calculatorSection || !calculatorSection.classList.contains('active')) {
      return;
    }
 
@@ -1670,23 +1685,36 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // NOTES FUNCTIONS
 function addNote() {
-  const noteInput = document.getElementById("noteInput");
-  const noteList = document.getElementById("noteList");
+  const noteInput = document.getElementById('noteInput');
   const noteText = noteInput.value.trim();
 
-  if (noteText !== "") {
-    const li = document.createElement("li");
-    li.className = "note-item";
-    li.textContent = noteText;
+  if (noteText) {
+    const noteList = document.getElementById('noteList');
+    const li = document.createElement('li');
+    li.className = 'note-item';
+    li.innerHTML = `
+      <span>${noteText}</span>
+      <button class="note-delete-btn" onclick="deleteNote(event, this)">×</button>
+    `;
     noteList.appendChild(li);
-    noteInput.value = "";
+    noteInput.value = '';
     updateCharCount();
+
+    // Restore notification for sticky notes
     addNotification("Sticky note added: '" + noteText + "'");
-  } else {
-    // Prevent adding empty notes
-    noteInput.focus();
   }
 }
+
+// Delete individual note - stops propagation to prevent module close/toggle
+function deleteNote(event, button) {
+  // Prevent event from bubbling up to parent handlers
+  if (event && event.stopPropagation) {
+    event.stopPropagation();
+  }
+  const noteItem = button.parentElement;
+  noteItem.remove();
+}
+
 
 function resetNotes() {
   document.getElementById("noteList").innerHTML = "";
@@ -2640,7 +2668,6 @@ function closeAllDirectModules() {
   directModules.forEach(id => {
     const module = document.getElementById(id);
     if (module) {
-      module.style.display = 'none';
       module.classList.remove('active');
     }
   });
@@ -2681,8 +2708,7 @@ function showDirectModule(moduleId) {
       // Close all other direct modules first (exclusive display)
       closeAllDirectModules();
       
-      // Open the selected module
-      section.style.display = 'block';
+      // Open the selected module using CSS class
       section.classList.add('active');
       section.scrollIntoView({ behavior: 'smooth', block: 'start' });
       
@@ -2700,16 +2726,6 @@ function updateToggleButtonsState(activeSectionId) {
       btn.classList.add('active');
     }
   });
-}
-
-function showSection(sectionId) {
-  // Called from toggle buttons - use the same logic as showDirectModule
-  const reverseMap = {
-    'calculator': 'Calculator',
-    'notes': 'StickyNotes',
-    'calendar': 'Calendar'
-  };
-  showDirectModule(reverseMap[sectionId] || sectionId);
 }
 
 function checkAllTasksCompleted() {

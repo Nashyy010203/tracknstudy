@@ -33,38 +33,75 @@
 
         .converter-section {
             margin-bottom: 30px;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .converter-section:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.25);
         }
 
         .converter-section h2 {
             margin-top: 0;
+            margin-bottom: 25px;
             color: #ffd700;
-            font-size: 1.5em;
+            font-size: 1.6em;
+            text-align: center;
+            font-weight: 600;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            
+        }
+
+        .converter-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
         }
 
         .input-group {
             display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            align-items: center;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-group label {
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
         }
 
         input, select, textarea {
-            padding: 10px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.9);
+            padding: 14px 16px;
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.95);
             color: #333;
             font-size: 16px;
+            transition: all 0.25s ease;
+            width: 100%;
+            min-height: 48px;
+            box-sizing: border-box;
         }
 
         input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: #ffd700;
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.15), 0 4px 12px rgba(255, 215, 0, 0.2);
+            background: #ffffff;
+            transform: translateY(-1px);
+            
+        }
+
+        input:hover, select:hover, textarea:hover {
+            border-color: rgba(255, 215, 0, 0.6);
+            transform: translateY(-1px);
+            
         }
 
         button {
@@ -85,45 +122,92 @@
         }
 
         .result {
-            margin-top: 15px;
-            padding: 15px;
-            background: rgba(0, 255, 0, 0.1);
-            border: 2px solid rgba(0, 255, 0, 0.3);
-            border-radius: 8px;
-            font-weight: bold;
+            margin-top: 20px;
+            padding: 18px 22px;
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.12), rgba(0, 200, 0, 0.08));
+            border: 2px solid rgba(0, 255, 0, 0.35);
+            border-radius: 12px;
+            font-weight: 600;
             word-wrap: break-word;
+            font-size: 16px;
+            line-height: 1.5;
+            color: #e6ffe6;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 12px rgba(0, 255, 0, 0.08);
+            animation: slideIn 0.3s ease;
         }
 
         .error {
-            margin-top: 15px;
-            padding: 15px;
-            background: rgba(255, 0, 0, 0.1);
-            border: 2px solid rgba(255, 0, 0, 0.3);
-            border-radius: 8px;
+            margin-top: 20px;
+            padding: 18px 22px;
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.12), rgba(0, 200, 0, 0.08));
+            border: 2px solid rgba(0, 255, 0, 0.35);
+            border-radius: 12px;
             color: #ffcccc;
+            font-weight: 500;
+            word-wrap: break-word;
+            font-size: 15px;
+            line-height: 1.5;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 12px rgba(255, 0, 0, 0.08);
+            animation: shake 0.4s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-4px); }
+            40% { transform: translateX(4px); }
+            60% { transform: translateX(-3px); }
+            80% { transform: translateX(3px); }
         }
 
         .tabs {
             display: flex;
             justify-content: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            gap: 8px;
+            flex-wrap: wrap;
         }
 
         .tab-button {
-            padding: 10px 20px;
-            margin: 0 5px;
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            border-radius: 10px;
+            padding: 12px 24px;
+            margin: 0;
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
             color: white;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 15px;
+            font-weight: 600;
             transition: all 0.3s ease;
+            backdrop-filter: blur(8px);
+        }
+
+        .tab-button:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 215, 0, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.15);
         }
 
         .tab-button.active {
-            background: rgba(255, 255, 255, 0.3);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.9), rgba(255, 190, 0, 0.9));
+            border-color: #ffd700;
+            color: #1a1a2e;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+            transform: translateY(-1px);
         }
 
         .converter-content {
@@ -136,18 +220,141 @@
 
         .grid-2 {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 15px;
         }
 
         .grid-3 {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 15px;
+            grid-template-columns: 1fr;
+            gap: 18px;
+            margin-bottom: 15px;
         }
 
-        @media (max-width: 768px) {
-            .grid-2, .grid-3 {
+        button {
+            padding: 13px 22px;
+            background: linear-gradient(45deg, #ff6b6b, #ffa500);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.25);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(255, 107, 107, 0.4);
+            filter: brightness(1.05);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(255, 107, 107, 0.2);
+        }
+
+        textarea {
+            padding: 14px 16px;
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            font-size: 15px;
+            line-height: 1.5;
+            resize: vertical;
+            min-height: 120px;
+            transition: all 0.25s ease;
+            font-family: inherit;
+            box-sizing: border-box;
+        }
+
+        textarea:focus, textarea:hover {
+            border-color: #ffd700;
+            box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.15), 0 4px 12px rgba(255, 215, 0, 0.2);
+            background: #ffffff;
+            box-sizing: border-box;
+            
+        }
+
+        .converter-content {
+            display: none;
+            animation: fadeIn 0.35s ease;
+        }
+
+        .converter-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive improvements */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+                border-radius: 16px;
+            }
+
+            h1 {
+                font-size: 1.9em;
+                margin-bottom: 20px;
+            }
+
+            .converter-section {
+                padding: 18px;
+            }
+
+            .converter-section h2 {
+                font-size: 1.3em;
+                margin-bottom: 18px;
+            }
+
+            .tab-button {
+                padding: 10px 16px;
+                font-size: 14px;
+                min-width: 100px;
+            }
+
+            .grid-2 {
+                gap: 10px;
+            }
+
+            input, select, textarea {
+                padding: 12px 14px;
+                font-size: 15px;
+            }
+
+            .result, .error {
+                padding: 14px 16px;
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .tabs {
+                gap: 6px;
+            }
+
+            .tab-button {
+                padding: 9px 12px;
+                font-size: 13px;
+                min-width: auto;
+                flex: 1;
+            }
+
+            .grid-2 {
                 grid-template-columns: 1fr;
             }
         }
@@ -167,63 +374,61 @@
         <div id="units" class="converter-content active">
             <div class="converter-section">
                 <h2>📏 Unit Converter</h2>
-                <div class="grid-3">
-                    <div>
-                        <label>From Unit:</label>
-                        <select id="fromUnit">
-                            <option value="meters" data-category="length">Meters</option>
-                            <option value="feet" data-category="length">Feet</option>
-                            <option value="inches" data-category="length">Inches</option>
-                            <option value="centimeters" data-category="length">Centimeters</option>
-                            <option value="kilometers" data-category="length">Kilometers</option>
-                            <option value="miles" data-category="length">Miles</option>
-                            <option value="celsius" data-category="temperature">Celsius</option>
-                            <option value="fahrenheit" data-category="temperature">Fahrenheit</option>
-                            <option value="kelvin" data-category="temperature">Kelvin</option>
-                            <option value="grams" data-category="weight">Grams</option>
-                            <option value="kilograms" data-category="weight">Kilograms</option>
-                            <option value="pounds" data-category="weight">Pounds</option>
-                            <option value="ounces" data-category="weight">Ounces</option>
-                            <option value="liters" data-category="volume">Liters</option>
-                            <option value="milliliters" data-category="volume">Milliliters</option>
-                            <option value="gallons" data-category="volume">Gallons</option>
-                            <option value="cups" data-category="volume">Cups</option>
-                            <option value="seconds" data-category="time">Seconds</option>
-                            <option value="minutes" data-category="time">Minutes</option>
-                            <option value="hours" data-category="time">Hours</option>
-                            <option value="days" data-category="time">Days</option>
-                            <option value="bytes" data-category="data">Bytes</option>
-                            <option value="kilobytes" data-category="data">Kilobytes</option>
-                            <option value="megabytes" data-category="data">Megabytes</option>
-                            <option value="gigabytes" data-category="data">Gigabytes</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label>Value:</label>
-                        <input type="number" id="unitValue" placeholder="Enter value">
-                    </div>
-                    <div>
-                        <label>To Unit:</label>
-                        <select id="toUnit">
-                            <option value="feet">Feet</option>
-                            <option value="meters">Meters</option>
-                            <option value="inches">Inches</option>
-                            <option value="centimeters">Centimeters</option>
-                            <option value="kilometers">Kilometers</option>
-                            <option value="miles">Miles</option>
-                            <option value="fahrenheit">Fahrenheit</option>
-                            <option value="celsius">Celsius</option>
-                            <option value="kelvin">Kelvin</option>
-                            <option value="kilograms">Kilograms</option>
-                            <option value="grams">Grams</option>
-                            <option value="pounds">Pounds</option>
-                            <option value="ounces">Ounces</option>
-                        </select>
-                    </div>
+            <div class="converter-grid">
+                <div class="input-group">
+                    <label for="fromUnit">From Unit:</label>
+                    <select id="fromUnit">
+                        <option value="meters" data-category="length">Meters</option>
+                        <option value="feet" data-category="length">Feet</option>
+                        <option value="inches" data-category="length">Inches</option>
+                        <option value="centimeters" data-category="length">Centimeters</option>
+                        <option value="kilometers" data-category="length">Kilometers</option>
+                        <option value="miles" data-category="length">Miles</option>
+                        <option value="celsius" data-category="temperature">Celsius</option>
+                        <option value="fahrenheit" data-category="temperature">Fahrenheit</option>
+                        <option value="kelvin" data-category="temperature">Kelvin</option>
+                        <option value="grams" data-category="weight">Grams</option>
+                        <option value="kilograms" data-category="weight">Kilograms</option>
+                        <option value="pounds" data-category="weight">Pounds</option>
+                        <option value="ounces" data-category="weight">Ounces</option>
+                        <option value="liters" data-category="volume">Liters</option>
+                        <option value="milliliters" data-category="volume">Milliliters</option>
+                        <option value="gallons" data-category="volume">Gallons</option>
+                        <option value="cups" data-category="volume">Cups</option>
+                        <option value="seconds" data-category="time">Seconds</option>
+                        <option value="minutes" data-category="time">Minutes</option>
+                        <option value="hours" data-category="time">Hours</option>
+                        <option value="days" data-category="time">Days</option>
+                        <option value="bytes" data-category="data">Bytes</option>
+                        <option value="kilobytes" data-category="data">Kilobytes</option>
+                        <option value="megabytes" data-category="data">Megabytes</option>
+                        <option value="gigabytes" data-category="data">Gigabytes</option>
+                    </select>
                 </div>
-                <button onclick="convertUnits()">Convert Units</button>
-                <button onclick="resetUnits()">Reset</button>
-                <div id="unitResult" class="result" style="display: none;"></div>
+                <div class="input-group">
+                    <label for="unitValue">Value:</label>
+                    <input type="number" id="unitValue" placeholder="Enter value" step="any">
+                </div>
+                <div class="input-group">
+                    <label for="toUnit">To Unit:</label>
+                    <select id="toUnit">
+                        <option value="feet">Feet</option>
+                        <option value="meters">Meters</option>
+                        <option value="inches">Inches</option>
+                        <option value="centimeters">Centimeters</option>
+                        <option value="kilometers">Kilometers</option>
+                        <option value="miles">Miles</option>
+                        <option value="fahrenheit">Fahrenheit</option>
+                        <option value="celsius">Celsius</option>
+                        <option value="kelvin">Kelvin</option>
+                        <option value="kilograms">Kilograms</option>
+                        <option value="grams">Grams</option>
+                        <option value="pounds">Pounds</option>
+                        <option value="ounces">Ounces</option>
+                    </select>
+                </div>
+            </div>
+            <div id="unitResult" class="result" style="display: none;"></div>
             </div>
         </div>
 
@@ -590,11 +795,19 @@
             document.getElementById('unitValue').value = '1';
             document.getElementById('textInput').value = 'Hello, World! This is a sample text for testing.';
             document.getElementById('encodeInput').value = 'Hello World';
+            
+            // Add event listeners for automatic conversion
+            document.getElementById('unitValue').addEventListener('input', convertUnits);
+            document.getElementById('fromUnit').addEventListener('change', convertUnits);
+            document.getElementById('toUnit').addEventListener('change', convertUnits);
+            
+            // Initial conversion
+            convertUnits();
         });
     </script>
 
     <!-- Back Button -->
-<a href="index.html" class="back-btn">← Back to Dashboard</a>
+<a href="form.html" class="back-btn">← Back to Dashboard</a>
 
 <style>
   .back-btn {
