@@ -78,7 +78,7 @@ signInForm.addEventListener('submit', (e) => {
 
     if (email === storedEmail && password === storedPassword) {
         alert(`Welcome ${storedName}`);
-        window.location.href = "index.html";
+        window.location.href = "form.html";
     } else {
         alert("Invalid credentials");
     }
