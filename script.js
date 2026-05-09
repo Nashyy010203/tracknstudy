@@ -1263,7 +1263,7 @@ document.getElementById('themeSelector').value = savedTheme;
 function logout() {
   localStorage.removeItem("currentUser");
   alert("You have been logged out.");
-  window.location.href = "form.html";
+  window.location.href = "index.html";
 }
 
 function showSection(sectionId) {
